@@ -12,7 +12,10 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Link from '@mui/material/Link';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import Events from './Events';
+import CreateEvent from './CreateEvent';
 
 function Copyright(props) {
   return (
@@ -70,6 +73,7 @@ function DashboardContent() {
           }}
         >
           <Toolbar />
+          <CreateEvent />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
               {/* Recent Orders */}
