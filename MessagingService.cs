@@ -1,7 +1,9 @@
 using Text = System.Text;
 using Google.Cloud.PubSub.V1;
+using Google.Api.Gax.ResourceNames;
 using Grpc.Core;
 using Microsoft.AspNetCore.SignalR;
+using System.Linq;
 
 namespace EventsSample
 {
@@ -32,7 +34,8 @@ namespace EventsSample
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            CreateSubscription();
+            TopicName topic = GetTopic();
+            CreateSubscription(topic);
             _subscriber = await SubscriberClient.CreateAsync(_subscriptionName);
             _processorTask = _subscriber.StartAsync(ProcessMessageAsync);
         }
@@ -71,10 +74,9 @@ namespace EventsSample
             _log.LogInformation($"Deleted subscription: {_subscriptionId}");      
         }
 
-        private void CreateSubscription()
+        private void CreateSubscription(TopicName topicName)
         {
             SubscriberServiceApiClient subscriber = SubscriberServiceApiClient.Create();
-            TopicName topicName = TopicName.FromProjectTopic(_projectId, _topicId);
 
             _subscriptionName = SubscriptionName.FromProjectSubscription(
                 _projectId, _subscriptionId);
@@ -91,6 +93,29 @@ namespace EventsSample
             {
                 // Already exists.  That's fine.
             }
+        }
+
+        private TopicName GetTopic()
+        {
+            TopicName topicName = TopicName.FromProjectTopic(_projectId, _topicId);
+
+            PublisherServiceApiClient publisher = PublisherServiceApiClient.Create();
+            ProjectName projectName = ProjectName.FromProject(_projectId);
+            IEnumerable<Topic> topics = publisher.ListTopics(projectName);
+                        
+            Topic topic = topics.FirstOrDefault(t => t.Name == _topicId);
+            
+            if (topic == default(Topic))
+            {
+                // Create new topic
+                topic = publisher.CreateTopic(new Topic { 
+                    Name = _topicId,
+                    TopicName = topicName });
+
+                _log.LogInformation($"Created new '{_topicId}' topic.");
+            }
+
+            return topicName;
         }
 
         private async Task<SubscriberClient.Reply> ProcessMessageAsync(
