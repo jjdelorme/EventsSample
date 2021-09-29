@@ -2,25 +2,33 @@ import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import DatePicker from '@mui/lab/DatePicker';
+import {v1 as uuid} from 'uuid'; 
 
 export default function CreateEvent(props) {
-  const [value, setValue] = React.useState(new Date());
+  const [eventDate, setEventDate] = React.useState(new Date());
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     // eslint-disable-next-line no-console
     console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+      id: uuid(),
+      type: data.get('eventType'),
+      product: data.get('eventType'),
     });
+
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'React POST Request Example' })
+    };
+    fetch('/events', requestOptions);
   };
 
   return (
@@ -47,9 +55,9 @@ export default function CreateEvent(props) {
                 label="Occurred on"
                 openTo="year"
                 views={['year', 'month', 'day']}
-                value={value}
+                value={eventDate}
                 onChange={(newValue) => {
-                  setValue(newValue);
+                  setEventDate(newValue);
                 }}
                 renderInput={(params) => <TextField {...params} />}
               />

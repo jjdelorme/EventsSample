@@ -12,8 +12,6 @@ import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Link from '@mui/material/Link';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Events from './Events';
 import CreateEvent from './CreateEvent';
 
