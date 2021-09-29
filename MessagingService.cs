@@ -102,12 +102,12 @@ namespace EventsSample
             PublisherServiceApiClient publisher = PublisherServiceApiClient.Create();
             ProjectName projectName = ProjectName.FromProject(_projectId);
             IEnumerable<Topic> topics = publisher.ListTopics(projectName);
-                        
-            Topic topic = topics.FirstOrDefault(t => t.Name == _topicId);
+
+            Topic topic = topics.FirstOrDefault(t => t.TopicName.TopicId == _topicId);
             
             if (topic == default(Topic))
             {
-                // Create new topic
+                // No topic exists, create new topic
                 topic = publisher.CreateTopic(new Topic { 
                     Name = _topicId,
                     TopicName = topicName });
