@@ -20,13 +20,22 @@ export default function CreateEvent(props) {
     console.log({
       id: uuid(),
       type: data.get('eventType'),
-      product: data.get('eventType'),
+      date: data.get('eventDate'),
+      product: data.get('product'),
+      description: data.get('description')
     });
 
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: 'React POST Request Example' })
+      body: JSON.stringify(
+        { 
+          id: uuid(),
+          type: data.get('eventType'),
+          date: data.get('eventDate'),
+          product: data.get('product'),
+          description: data.get('description')
+        })
     };
     fetch('/events', requestOptions);
   };
@@ -59,7 +68,8 @@ export default function CreateEvent(props) {
                 onChange={(newValue) => {
                   setEventDate(newValue);
                 }}
-                renderInput={(params) => <TextField {...params} />}
+                renderInput={(params) => 
+                  <TextField {...params} id="eventDate" name="eventDate" />}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
