@@ -5,4 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <Target Name="BuildReact" AfterTargets="Build">
+    <Exec Command="npm run build" />
+  </Target>
+
 </Project>
