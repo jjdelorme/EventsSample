@@ -35,7 +35,6 @@ function DashboardContent() {
 
   const [events, setEvents] = React.useState([]);
   const onNewEvent = (e) => {
-    console.log('running new event');
     if (e.id != null)
       events.push(e);
   };

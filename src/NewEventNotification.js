@@ -10,23 +10,26 @@ export default function NewEventNotification(props) {
   const [message, setMessage] = useState('');
   const [hub] = useState(new HubConnectionBuilder()
     .withUrl(hubUrl)
-    .build()
-  );
+    .build());
   const onNewEvent = props.onNewEvent;
 
   useEffect(() => {
+    console.log('useEffect');
+
     hub.start()
         .then(() => console.log('Connection started.'))
         .catch(err => console.log('Connection error', err));
 
     hub.on('newEventMessage', (data) => {
-        console.log('message', data);
-        if (data.id != null) {
-            setMessage(data.eventType);
+        console.log('newEventMessage', data);
+        const eventItem = JSON.parse(data);
+        if (eventItem.id != null) {
+            setMessage(eventItem.type);
             setOpen(true);
-            onNewEvent(data);
+            onNewEvent(eventItem);
         }
     });
+
   }, [hub]); // This tells useEffect to run only if hub changes (which it will never)
 
   const handleClose = (event, reason) => {
