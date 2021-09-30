@@ -36,6 +36,12 @@ function DashboardContent() {
   const [events, setEvents] = React.useState([]);
   const eventsUrl = '/events';
   
+  const onNewEvent = (e) => {
+    console.log('running new event');
+    if (e.id != null)
+      events.push(e);
+  };
+
   // Load events.
   fetch(eventsUrl)
     .then(response => response.json())
@@ -86,7 +92,7 @@ function DashboardContent() {
         >
           <Toolbar />
           <CreateEvent />
-          <NewEventNotification />
+          <NewEventNotification onNewEvent={onNewEvent} />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
               {/* Recent Events */}

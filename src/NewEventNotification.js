@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Snackbar } from '@mui/material';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { HubConnectionBuilder } from "@microsoft/signalr";  
 
-export default function NewEventNotification() {
+export default function NewEventNotification(props) {
   const hubUrl = '/notifyhub'
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -13,6 +12,7 @@ export default function NewEventNotification() {
     .withUrl(hubUrl)
     .build()
   );
+  const onNewEvent = props.onNewEvent;
 
   useEffect(() => {
     hub.start()
@@ -21,8 +21,11 @@ export default function NewEventNotification() {
 
     hub.on('newEventMessage', (data) => {
         console.log('message', data);
-        setMessage(data);
-        setOpen(true);
+        if (data.id != null) {
+            setMessage(data.eventType);
+            setOpen(true);
+            onNewEvent(data);
+        }
     });
   }, [hub]); // This tells useEffect to run only if hub changes (which it will never)
 
