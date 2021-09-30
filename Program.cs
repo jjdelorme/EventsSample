@@ -20,9 +20,17 @@ app.MapGet("/events", (HttpContext http, EventService eventService) =>
     eventService.Get()
 );
 
-app.MapPost("/events", (context) => {
-    Console.WriteLine("Got id: " + context.Request.Form["id"]);
-    return null;
+app.MapPost("/events", async (HttpContext http, EventService eventService) => {
+    if (!http.Request.HasJsonContentType())
+    {
+        http.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
+        return;
+    }
+    
+    var eventItem = await http.Request.ReadFromJsonAsync<Event>();
+    await eventService.CreateAsync(eventItem);
+    
+    await http.Response.WriteAsJsonAsync(eventItem);    
 });
 
 app.Run();

@@ -8,9 +8,12 @@ namespace EventsSample
     public class EventService
     {
         private readonly List<Event> _events;
+        private readonly ILogger<EventService> _log;
 
         public EventService(ILogger<EventService> log)
         {
+            _log = log;
+
             _events = new List<Event>();
             _events.Add(new Event() {
                 Id = "0",
@@ -34,12 +37,13 @@ namespace EventsSample
         public Event Get(string id) =>
             _events.Find(e => e.Id == id);
 
-        public async Task<Event> CreateAsync(Event Event)
+        public async Task<Event> CreateAsync(Event eventItem)
         {
             // _events.InsertOne(Event);
             // await _notify.NewEvent(Event);
+            _log.LogInformation($"Created event id:{eventItem.Id}");
             
-            return Event;
+            return eventItem;
         }
     }
 }
