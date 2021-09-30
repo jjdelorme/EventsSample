@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Snackbar } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { HubConnectionBuilder } from "@microsoft/signalr";  
+import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";  
 
 export default function NewEventNotification(props) {
   const hubUrl = '/notifyhub'
@@ -14,23 +14,22 @@ export default function NewEventNotification(props) {
   const onNewEvent = props.onNewEvent;
 
   useEffect(() => {
-    console.log('useEffect');
+    if (hub.state === HubConnectionState.Disconnected) {
+      hub.start()
+          .then(() => console.log('Connection started.'))
+          .catch(err => console.log('Connection error', err));
 
-    hub.start()
-        .then(() => console.log('Connection started.'))
-        .catch(err => console.log('Connection error', err));
-
-    hub.on('newEventMessage', (data) => {
-        console.log('newEventMessage', data);
-        const eventItem = JSON.parse(data);
-        if (eventItem.id != null) {
-            setMessage(eventItem.type);
-            setOpen(true);
-            onNewEvent(eventItem);
-        }
-    });
-
-  }, [hub]); // This tells useEffect to run only if hub changes (which it will never)
+      hub.on('newEventMessage', (data) => {
+          console.log('newEventMessage', data);
+          const eventItem = JSON.parse(data);
+          if (eventItem.id != null) {
+              setMessage(eventItem.type);
+              setOpen(true);
+              onNewEvent(eventItem);
+          }
+      });
+    }
+  }, [hub, onNewEvent]); // This tells useEffect to run only if these params change
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {

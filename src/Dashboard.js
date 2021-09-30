@@ -33,12 +33,23 @@ function Copyright(props) {
 
 function DashboardContent() {
 
-  const [events, setEvents] = React.useState([]);
-  const onNewEvent = (e) => {
-    if (e.id != null)
-      events.push(e);
-  };
-  
+  const [eventItems, setEvents] = useState([]);
+
+  // const onNewEvent = useCallback( (e) => {
+  //   if (e != null) {
+  //     eventItems.push(e);
+  //     setEvents(eventItems);
+  //   }
+  // }, [eventItems]);
+
+  const onNewEvent = (e) => setEvents(prevEvents => {
+    return [...prevEvents, e];
+  });
+
+  useEffect(() => {
+    console.log('eventItems updated');
+  }, [eventItems]);
+
   useEffect(() => {
     // Load events.
     const eventsUrl = '/events';
@@ -51,7 +62,7 @@ function DashboardContent() {
           setEvents([]);
       }); 
   }, []);
- 
+
   return (
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: 'flex' }}>
@@ -72,7 +83,7 @@ function DashboardContent() {
               Dashboard
             </Typography>
             <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
+              <Badge badgeContent={null} color="secondary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -98,7 +109,7 @@ function DashboardContent() {
               {/* Recent Events */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Events events={events} />
+                  <Events events={eventItems} />
                 </Paper>
               </Grid>
             </Grid>
