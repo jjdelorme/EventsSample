@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
@@ -34,24 +34,25 @@ function Copyright(props) {
 function DashboardContent() {
 
   const [events, setEvents] = React.useState([]);
-  const eventsUrl = '/events';
-  
   const onNewEvent = (e) => {
     console.log('running new event');
     if (e.id != null)
       events.push(e);
   };
-
-  // Load events.
-  fetch(eventsUrl)
-    .then(response => response.json())
-    .then(data => {
-      if (data != null)
-        setEvents(data);
-      else
-        setEvents([]);
-    });  
-
+  
+  useEffect(() => {
+    // Load events.
+    const eventsUrl = '/events';
+    fetch(eventsUrl)
+      .then(response => response.json())
+      .then(data => {
+        if (data != null)
+          setEvents(data);
+        else
+          setEvents([]);
+      }); 
+  }, []);
+ 
   return (
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: 'flex' }}>
