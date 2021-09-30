@@ -19,8 +19,9 @@ namespace EventsSample
             var databaseName = config["DatabaseName"];
             var collectionName = config["CollectionName"];
 
-            if (connectionString == null || databaseName == null ||
-                collectionName == null)
+            if (string.IsNullOrEmpty(connectionString) || 
+                string.IsNullOrEmpty(databaseName) ||
+                string.IsNullOrEmpty(collectionName))
             {
                 throw new ApplicationException("You must configure ConnectionString, DatabaseName, CollectionName");
             }
