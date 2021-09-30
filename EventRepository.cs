@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace EventsSample
 {
-    public class EventService
+    public class EventRespository
     {
         private readonly List<Event> _events;
-        private readonly ILogger<EventService> _log;
-        private readonly NotificationService _notify;
+        private readonly ILogger<EventRespository> _log;
+        private readonly PublisherService _notify;
 
-        public EventService(ILogger<EventService> log, NotificationService notify)
+        public EventRespository(ILogger<EventRespository> log, PublisherService notify)
         {
             _log = log;
             _notify = notify;

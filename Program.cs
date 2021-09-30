@@ -3,9 +3,9 @@ using EventsSample;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSignalR();
-builder.Services.AddHostedService<MessagingService>();
-builder.Services.AddSingleton<NotificationService>();
-builder.Services.AddSingleton<EventService>();
+builder.Services.AddHostedService<SubscriberService>();
+builder.Services.AddSingleton<PublisherService>();
+builder.Services.AddSingleton<EventRespository>();
 
 var app = builder.Build();
 
@@ -17,11 +17,11 @@ app.UseEndpoints(endpoints =>
     endpoints.MapHub<NotifyHub>("/notifyhub")
 );
 
-app.MapGet("/events", (HttpContext http, EventService eventService) => 
+app.MapGet("/events", (HttpContext http, EventRespository eventService) => 
     eventService.Get()
 );
 
-app.MapPost("/events", async (HttpContext http, EventService eventService) => {
+app.MapPost("/events", async (HttpContext http, EventRespository eventService) => {
     if (!http.Request.HasJsonContentType())
     {
         http.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;

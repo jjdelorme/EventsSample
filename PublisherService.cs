@@ -3,12 +3,12 @@ using Google.Cloud.PubSub.V1;
 
 namespace EventsSample
 {
-    public class NotificationService
+    public class PublisherService
     {
-        private ILogger<NotificationService> _log;
+        private ILogger<PublisherService> _log;
         private PublisherClient _publisher;
      
-        public NotificationService(IConfiguration config, ILogger<NotificationService> log)
+        public PublisherService(IConfiguration config, ILogger<PublisherService> log)
         {
             _log = log;
             string topicId = config["TopicId"];
@@ -22,6 +22,9 @@ namespace EventsSample
             _publisher = PublisherClient.Create(topicName);
         }
 
+        /// <summary>
+        /// Publishes new Event messages to the configured PubSub topic.
+        /// </summary>
         public async Task PublishAsync(Event item)
         {
             string message = JsonSerializer.Serialize<Event>(item,

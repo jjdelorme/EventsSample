@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace EventsSample
 {
-    public class MessagingService : IHostedService
+    public class SubscriberService : IHostedService
     {
-        private ILogger<MessagingService> _log;
+        private ILogger<SubscriberService> _log;
         private string _projectId;
         private string _topicId;
         private string _subscriptionId;
@@ -17,7 +17,7 @@ namespace EventsSample
         private SubscriberClient _subscriber;
         private Task _processorTask;
 
-        public MessagingService(ILogger<MessagingService> logger, IConfiguration config, IHubContext<NotifyHub> hub)
+        public SubscriberService(ILogger<SubscriberService> logger, IConfiguration config, IHubContext<NotifyHub> hub)
         {
             _topicId = config["TopicId"];
             _projectId = config["ProjectId"];
