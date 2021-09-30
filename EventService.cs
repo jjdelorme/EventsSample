@@ -9,10 +9,12 @@ namespace EventsSample
     {
         private readonly List<Event> _events;
         private readonly ILogger<EventService> _log;
+        private readonly NotificationService _notify;
 
-        public EventService(ILogger<EventService> log)
+        public EventService(ILogger<EventService> log, NotificationService notify)
         {
             _log = log;
+            _notify = notify;
 
             _events = new List<Event>();
             _events.Add(new Event() {
@@ -40,9 +42,10 @@ namespace EventsSample
         public async Task<Event> CreateAsync(Event eventItem)
         {
             // _events.InsertOne(Event);
-            // await _notify.NewEvent(Event);
+            _events.Add(eventItem);
             _log.LogInformation($"Created event id:{eventItem.Id}");
-            
+            await _notify.PublishAsync(eventItem);
+
             return eventItem;
         }
     }

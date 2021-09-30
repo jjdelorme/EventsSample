@@ -3,7 +3,6 @@ using Google.Cloud.PubSub.V1;
 using Google.Api.Gax.ResourceNames;
 using Grpc.Core;
 using Microsoft.AspNetCore.SignalR;
-using System.Linq;
 
 namespace EventsSample
 {
@@ -32,6 +31,10 @@ namespace EventsSample
             _hub = hub;
         }
 
+        /// <summary>
+        /// Automatically called by ASP.NET on startup.  Creates a subscription to
+        /// the configured PubSub topic and listens in "Pull" mode to the subscription.
+        /// </summary>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             TopicName topic = GetTopic();
@@ -41,6 +44,9 @@ namespace EventsSample
             _processorTask = _subscriber.StartAsync(ProcessMessageAsync);
         }
 
+        /// <summary>
+        /// Automatically called by ASP.NET on shutdown.  
+        /// </summary>
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             if (_subscriber != null)
@@ -51,30 +57,10 @@ namespace EventsSample
             DeleteSubscription();
         }
 
-        public async Task Publish(string message)
-        {
-            TopicName topicName = TopicName.FromProjectTopic(_projectId, _topicId);
-            PublisherClient publisher = await PublisherClient.CreateAsync(topicName);
-
-            try
-            {
-                string result = await publisher.PublishAsync(message);
-                _log.LogDebug($"Published message: {message}");
-            }
-            catch (Exception exception)
-            {
-                _log.LogError($"An error ocurred when publishing message {message}: " +
-                    $"{exception.Message}");
-            }            
-        }
-
-        private void DeleteSubscription()
-        {
-            SubscriberServiceApiClient subscriber = SubscriberServiceApiClient.Create();
-            subscriber.DeleteSubscription(_subscriptionName);      
-            _log.LogInformation($"Deleted subscription: {_subscriptionId}");      
-        }
-
+        /// <summary>
+        /// Creates a unique subscription for this service to listen to the topic which
+        /// is intended to exist only for the duration of this service instance.
+        /// </summary>
         private void CreateSubscription(TopicName topicName)
         {
             SubscriberServiceApiClient subscriber = SubscriberServiceApiClient.Create();
@@ -96,6 +82,20 @@ namespace EventsSample
             }
         }
 
+        /// <summary>
+        /// Deletes the subscription.  This subscription is intended to only exist
+        /// while this instance of the service is running.
+        /// </summary>
+        private void DeleteSubscription()
+        {
+            SubscriberServiceApiClient subscriber = SubscriberServiceApiClient.Create();
+            subscriber.DeleteSubscription(_subscriptionName);      
+            _log.LogInformation($"Deleted subscription: {_subscriptionId}");      
+        }
+
+        /// <summary>
+        /// Get the existing PubSub topic, or create if it does not exist.
+        /// </summary>
         private TopicName GetTopic()
         {
             TopicName topicName = TopicName.FromProjectTopic(_projectId, _topicId);
@@ -119,6 +119,10 @@ namespace EventsSample
             return topicName;
         }
 
+        /// <summary>
+        /// Invoked when a new message is delivered to the subscription.
+        /// Parses the message and notifies all the registered web clients.
+        /// </summary>
         private async Task<SubscriberClient.Reply> ProcessMessageAsync(
             PubsubMessage message, 
             CancellationToken cancel)

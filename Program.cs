@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<MessagingService>();
+builder.Services.AddSingleton<NotificationService>();
 builder.Services.AddSingleton<EventService>();
 
 var app = builder.Build();
