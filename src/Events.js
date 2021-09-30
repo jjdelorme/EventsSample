@@ -11,19 +11,8 @@ function preventDefault(event) {
   event.preventDefault();
 }
 
-export default function Events() {
-  const [events, setEvents] = React.useState([]);
-  
-  const eventsUrl = '/events';
-
-  fetch(eventsUrl)
-    .then(response => response.json())
-    .then(data => {
-      if (data != null)
-        setEvents(data);
-      else
-        setEvents([]);
-    });
+export default function Events(props) {
+  const events = props.events;
 
   return (
     <React.Fragment>

@@ -16,6 +16,8 @@ import Events from './Events';
 import CreateEvent from './CreateEvent';
 import NewEventNotification from './NewEventNotification';
 
+const mdTheme = createTheme();
+
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -29,9 +31,20 @@ function Copyright(props) {
   );
 }
 
-const mdTheme = createTheme();
-
 function DashboardContent() {
+
+  const [events, setEvents] = React.useState([]);
+  const eventsUrl = '/events';
+  
+  // Load events.
+  fetch(eventsUrl)
+    .then(response => response.json())
+    .then(data => {
+      if (data != null)
+        setEvents(data);
+      else
+        setEvents([]);
+    });  
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -79,7 +92,7 @@ function DashboardContent() {
               {/* Recent Events */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Events />
+                  <Events events={events} />
                 </Paper>
               </Grid>
             </Grid>
