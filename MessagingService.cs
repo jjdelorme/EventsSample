@@ -135,7 +135,8 @@ namespace EventsSample
                 string json = Text.Encoding.UTF8.GetString(message.Data.ToArray());
                 _log.LogInformation($"Received message id:{message.MessageId}, Body:{json}");
 
-                await _hub.Clients.All.SendAsync("ReceiveMessage", json);
+                // Send a message to all signalR clients connected.
+                await _hub.Clients.All.SendAsync("newEventMessage", json);
 
                 reply = SubscriberClient.Reply.Ack;
             }
@@ -143,8 +144,6 @@ namespace EventsSample
             {
                 _log.LogError($"ERROR: Attempt for message {message.MessageId}.", e);
             }
-            
-            _log.LogInformation($"Message handler completed with {reply} for {message.MessageId}.");
             
             return reply;
         }

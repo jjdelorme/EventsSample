@@ -14,9 +14,9 @@ function preventDefault(event) {
 export default function Events() {
   const [events, setEvents] = React.useState([]);
   
-  const url = '/events';
+  const eventsUrl = '/events';
 
-  fetch(url)
+  fetch(eventsUrl)
     .then(response => response.json())
     .then(data => {
       if (data != null)
