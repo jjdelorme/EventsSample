@@ -14,11 +14,16 @@ function preventDefault(event) {
 export default function Events() {
   const [events, setEvents] = React.useState([]);
   
-  const url = '/events.json';
+  const url = '/events';
 
   fetch(url)
     .then(response => response.json())
-    .then(data => setEvents(data.events));
+    .then(data => {
+      if (data != null)
+        setEvents(data);
+      else
+        setEvents([]);
+    });
 
   return (
     <React.Fragment>
