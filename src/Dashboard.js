@@ -34,21 +34,9 @@ function Copyright(props) {
 function DashboardContent() {
 
   const [eventItems, setEvents] = useState([]);
-
-  // const onNewEvent = useCallback( (e) => {
-  //   if (e != null) {
-  //     eventItems.push(e);
-  //     setEvents(eventItems);
-  //   }
-  // }, [eventItems]);
-
-  const onNewEvent = (e) => setEvents(prevEvents => {
-    return [...prevEvents, e];
+  const onNewEvent = (e) => setEvents(events => {
+    return [...events, e];
   });
-
-  useEffect(() => {
-    console.log('eventItems updated');
-  }, [eventItems]);
 
   useEffect(() => {
     // Load events.
