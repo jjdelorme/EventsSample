@@ -5,10 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <Target Name="BuildReact" AfterTargets="Build" Condition="false">
-    <Exec Command="npm run build" />
-  </Target>
-
   <ItemGroup>
     <PackageReference Include="Google.Cloud.PubSub.V1" Version="2.7.0" />
     <PackageReference Include="Microsoft.AspNet.SignalR" Version="2.4.2" />
