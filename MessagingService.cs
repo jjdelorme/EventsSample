@@ -36,6 +36,7 @@ namespace EventsSample
         {
             TopicName topic = GetTopic();
             CreateSubscription(topic);
+            
             _subscriber = await SubscriberClient.CreateAsync(_subscriptionName);
             _processorTask = _subscriber.StartAsync(ProcessMessageAsync);
         }
