@@ -9,16 +9,19 @@ namespace EventsSample
     public class SubscriberService : IHostedService
     {
         private ILogger<SubscriberService> _log;
+        private IHubContext<NotifyHub> _hub;        
         private string _projectId;
         private string _topicId;
         private string _subscriptionId;
-        private IHubContext<NotifyHub> _hub;
         private SubscriptionName _subscriptionName;
         private SubscriberClient _subscriber;
         private Task _processorTask;
 
-        public SubscriberService(ILogger<SubscriberService> logger, IConfiguration config, IHubContext<NotifyHub> hub)
+        public SubscriberService(ILogger<SubscriberService> log, 
+            IConfiguration config, IHubContext<NotifyHub> hub)
         {
+            _log = log;
+            _hub = hub;
             _topicId = config["TopicId"];
             _projectId = config["ProjectId"];
 
@@ -27,8 +30,6 @@ namespace EventsSample
                     "You must configure values for PubSub `TopicId`, `ProjectId`");
 
             _subscriptionId = $"{_topicId}_{Guid.NewGuid().ToString()}";
-            _log = logger;
-            _hub = hub;
         }
 
         /// <summary>
@@ -136,9 +137,10 @@ namespace EventsSample
 
             try
             {               
-                // Process the message.
                 string json = Text.Encoding.UTF8.GetString(message.Data.ToArray());
-                _log.LogInformation($"Received message id:{message.MessageId}, Body:{json}");
+                
+                _log.LogInformation($"Received message id:{message.MessageId}, " +
+                    $"Body:{json}");
 
                 // Send a message to all signalR clients connected.
                 await _hub.Clients.All.SendAsync("newEventMessage", json);
@@ -147,7 +149,7 @@ namespace EventsSample
             }
             catch (Exception e)
             {
-                _log.LogError($"ERROR: Attempt for message {message.MessageId}.", e);
+                _log.LogError($"Error reading message {message.MessageId}.", e);
             }
             
             return reply;

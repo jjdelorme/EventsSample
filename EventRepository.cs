@@ -9,12 +9,13 @@ namespace EventsSample
     {
         private readonly List<Event> _events;
         private readonly ILogger<EventRespository> _log;
-        private readonly PublisherService _notify;
+        private readonly PublisherService _publisher;
 
-        public EventRespository(ILogger<EventRespository> log, PublisherService notify)
+        public EventRespository(ILogger<EventRespository> log, 
+            PublisherService publisher)
         {
             _log = log;
-            _notify = notify;
+            _publisher = publisher;
 
             _events = new List<Event>();
             _events.Add(new Event() {
@@ -44,7 +45,7 @@ namespace EventsSample
             // _events.InsertOne(Event);
             _events.Add(eventItem);
             _log.LogInformation($"Created event id:{eventItem.Id}");
-            await _notify.PublishAsync(eventItem);
+            await _publisher.PublishAsync(eventItem);
 
             return eventItem;
         }

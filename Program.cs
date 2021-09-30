@@ -17,11 +17,11 @@ app.UseEndpoints(endpoints =>
     endpoints.MapHub<NotifyHub>("/notifyhub")
 );
 
-app.MapGet("/events", (HttpContext http, EventRespository eventService) => 
-    eventService.Get()
+app.MapGet("/events", (HttpContext http, EventRespository events) => 
+    events.Get()
 );
 
-app.MapPost("/events", async (HttpContext http, EventRespository eventService) => {
+app.MapPost("/events", async (HttpContext http, EventRespository events) => {
     if (!http.Request.HasJsonContentType())
     {
         http.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
@@ -29,9 +29,17 @@ app.MapPost("/events", async (HttpContext http, EventRespository eventService) =
     }
     
     var eventItem = await http.Request.ReadFromJsonAsync<Event>();
-    await eventService.CreateAsync(eventItem);
     
-    await http.Response.WriteAsJsonAsync(eventItem);    
+    if (eventItem != null)
+    {
+        await events.CreateAsync(eventItem);
+        await http.Response.WriteAsJsonAsync(eventItem);    
+    }
+    else
+    {
+        http.Response.StatusCode = StatusCodes.Status400BadRequest;
+        return;
+    }
 });
 
 app.Run();
