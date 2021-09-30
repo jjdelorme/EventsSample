@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-//import { Snackbar } from '@mui/material';
+import { Snackbar } from '@mui/material';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 import { HubConnectionBuilder } from "@microsoft/signalr";  
 
 export default function NewEventNotification() {
@@ -21,11 +24,38 @@ export default function NewEventNotification() {
         setMessage(data);
         setOpen(true);
     });
-  }, [hub]);
+  }, [hub]); // This tells useEffect to run only if hub changes (which it will never)
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+  const action = (
+    <React.Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleClose}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </React.Fragment>
+  );
 
   return (
-      <div>
-          Message is: {message}
-      </div>
-  )
+    <div>
+      <Snackbar
+        open={open}
+        autoHideDuration={30000}
+        onClose={handleClose}
+        message={"New " + message + " event"}
+        action={action}
+      />
+    </div>
+  );
 }
