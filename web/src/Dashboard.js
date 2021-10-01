@@ -35,9 +35,17 @@ function DashboardContent() {
 
   const [eventItems, setEvents] = useState([]);
   const [eventAlerts, setAlerts] = useState(null);
+
   const onNewEvent = (e) => {
     setEvents(events => [...events, e]);
     setAlerts(count => count ? count + 1 : 1);
+  };
+
+  const onDeletedEvent = (id) => {
+    setEvents(events => {
+      const newEvents = events.filter((e) => e.id !== id);
+      return newEvents;
+    });
   };
 
   useEffect(() => {
@@ -99,7 +107,7 @@ function DashboardContent() {
               {/* Recent Events */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Events events={eventItems} />
+                  <Events events={eventItems} onDeletedEvent={onDeletedEvent} />
                 </Paper>
               </Grid>
             </Grid>

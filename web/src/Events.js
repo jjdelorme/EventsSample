@@ -13,16 +13,20 @@ function preventDefault(event) {
   event.preventDefault();
 }
 
-function deleteEvent(id) {
-  console.log('deleting event', id);
-  const requestOptions = {
-    method: 'DELETE'
-  };
-  fetch('/events/' + id, requestOptions);  
-}
-
 export default function Events(props) {
   const events = props.events;
+  const onDeleted = props.onDeletedEvent;
+
+  const deleteEvent = (id) => {
+    console.log('deleting event', id);
+    const requestOptions = {
+      method: 'DELETE'
+    };
+    fetch('/events/' + id, requestOptions);  
+    
+    if (onDeleted != null)
+      onDeleted(id);
+  }
 
   return (
     <React.Fragment>
