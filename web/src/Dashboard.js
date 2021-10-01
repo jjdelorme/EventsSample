@@ -10,7 +10,6 @@ import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import Events from './Events';
 import CreateEvent from './CreateEvent';
