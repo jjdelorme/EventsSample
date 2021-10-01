@@ -47,5 +47,8 @@ namespace EventsSample
 
             return eventItem;
         }
+
+        public void Delete(string id) =>
+            _events.DeleteOne(eventItem => eventItem.Id == id);
     }
 }

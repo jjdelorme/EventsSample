@@ -51,6 +51,12 @@ app.MapPost("/events", async (HttpContext http, EventRespository events) => {
     }
 });
 
+app.MapDelete("/events/{id}", (HttpContext http, EventRespository events, string id) => {
+    events.Delete(id);
+    app.Logger.LogInformation($"Deleted id {id}");
+    http.Response.StatusCode = StatusCodes.Status200OK;
+});
+
 try 
 {
     app.Run();
