@@ -6,12 +6,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<SubscriberService>();
 builder.Services.AddSingleton<PublisherService>();
-builder.Services.AddSingleton<EventRespository>();
+builder.Services.AddScoped<EventRespository>();
 
-builder.Logging.AddConsoleFormatter<GoogleCloudConsoleFormatter, GoogleCloudConsoleFormatterOptions>(
-        options => options.IncludeScopes = true)
-    .AddConsole(options => 
-        options.FormatterName = nameof(GoogleCloudConsoleFormatter));
+if (builder.Environment.IsProduction()) 
+{
+    builder.Logging.AddConsoleFormatter<GoogleCloudConsoleFormatter, GoogleCloudConsoleFormatterOptions>(
+            options => options.IncludeScopes = true)
+        .AddConsole(options => 
+            options.FormatterName = nameof(GoogleCloudConsoleFormatter));
+}
 
 var app = builder.Build();
 
@@ -54,5 +57,5 @@ try
 }
 catch (Exception e)
 {
-    app.Logger.LogCritical(e, "Unable to start.");
+    app.Logger.LogCritical(e, "Unhandled exception");
 }
