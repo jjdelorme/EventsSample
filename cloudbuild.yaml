@@ -1,0 +1,19 @@
+steps:
+# Deploy Cloud Run
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args: 
+  - 'beta'  
+  - 'run'
+  - 'deploy'
+  - 'eventssample'
+  - '--region'
+  - 'us-central1'
+  - '--platform'
+  - 'managed'
+  - '--allow-unauthenticated'
+  - '--update-secrets=ConnectionString=EventsConnectionString:latest'
+  - '--update-env-vars'
+  - 'ProjectId=$PROJECT_ID'
+  - '--source'
+  - '.'
