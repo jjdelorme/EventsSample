@@ -8,10 +8,6 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Title from './Title';
 
-function preventDefault(event) {
-  event.preventDefault();
-}
-
 export default function Events(props) {
   const events = props.events;
   const onDeleted = props.onDeletedEvent;
