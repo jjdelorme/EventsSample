@@ -10,6 +10,7 @@ export default function NewEventNotification(props) {
   const [message, setMessage] = useState('');
   const [hub] = useState(new HubConnectionBuilder()
     .withUrl(hubUrl)
+    .withAutomaticReconnect()
     .build());
   const onNewEvent = props.onNewEvent;
 

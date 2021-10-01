@@ -1,4 +1,5 @@
 using EventsSample;
+using Google.Cloud.Logging.Console;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,11 @@ builder.Services.AddSignalR();
 builder.Services.AddHostedService<SubscriberService>();
 builder.Services.AddSingleton<PublisherService>();
 builder.Services.AddSingleton<EventRespository>();
+
+builder.Logging.AddConsoleFormatter<GoogleCloudConsoleFormatter, GoogleCloudConsoleFormatterOptions>(
+        options => options.IncludeScopes = true)
+    .AddConsole(options => 
+        options.FormatterName = nameof(GoogleCloudConsoleFormatter));
 
 var app = builder.Build();
 
@@ -42,4 +48,11 @@ app.MapPost("/events", async (HttpContext http, EventRespository events) => {
     }
 });
 
-app.Run();
+try 
+{
+    app.Run();
+}
+catch (Exception e)
+{
+    app.Logger.LogCritical(e, "Unable to start.");
+}

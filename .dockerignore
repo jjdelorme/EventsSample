@@ -1,0 +1,6 @@
+# exlude all built libraries, these get built in the dockerfile
+**/wwwroot
+**/node_modules
+**/bin
+**/obj
+**/.vscode/
