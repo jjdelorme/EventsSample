@@ -34,9 +34,11 @@ function Copyright(props) {
 function DashboardContent() {
 
   const [eventItems, setEvents] = useState([]);
-  const onNewEvent = (e) => setEvents(events => {
-    return [...events, e];
-  });
+  const [eventAlerts, setAlerts] = useState(null);
+  const onNewEvent = (e) => {
+    setEvents(events => [...events, e]);
+    setAlerts(count => count ? count + 1 : 1);
+  };
 
   useEffect(() => {
     // Load events.
@@ -71,7 +73,7 @@ function DashboardContent() {
               Dashboard
             </Typography>
             <IconButton color="inherit">
-              <Badge badgeContent={null} color="secondary">
+              <Badge badgeContent={eventAlerts} color="secondary">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
