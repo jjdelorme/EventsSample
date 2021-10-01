@@ -21,7 +21,7 @@ const mdTheme = createTheme();
 function Version(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Version ' + process.env.REACT_APP_VERSION}
+      {'Version ' + process.env.REACT_APP_VERSION} - {process.env.NODE_ENV}
     </Typography>
   );
 }
