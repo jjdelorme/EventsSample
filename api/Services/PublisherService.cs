@@ -34,6 +34,7 @@ namespace EventsSample
             try
             {
                 string messageId = await _publisher.PublishAsync(message);
+                
                 _log.LogDebug($"Published message: {messageId}");
             }
             catch (Exception exception)
