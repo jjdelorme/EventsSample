@@ -18,15 +18,10 @@ import NewEventNotification from './NewEventNotification';
 
 const mdTheme = createTheme();
 
-function Copyright(props) {
+function Version(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://material-ui.com/">
-        Samples
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+      {'Version ' + process.env.REACT_APP_VERSION}
     </Typography>
   );
 }
@@ -111,7 +106,7 @@ function DashboardContent() {
                 </Paper>
               </Grid>
             </Grid>
-            <Copyright sx={{ pt: 4 }} />
+            <Version sx={{ pt: 4 }} />
           </Container>
         </Box>
       </Box>
