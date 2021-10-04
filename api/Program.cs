@@ -6,11 +6,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<SubscriberService>();
 builder.Services.AddSingleton<PublisherService>();
-builder.Services.AddScoped<EventRespository>();
+builder.Services.AddSingleton<EventRespository>();
 
 if (builder.Environment.IsProduction()) 
 {
-    builder.Logging.AddConsoleFormatter<GoogleCloudConsoleFormatter, GoogleCloudConsoleFormatterOptions>(
+    builder.Logging
+        .AddConsoleFormatter<GoogleCloudConsoleFormatter, GoogleCloudConsoleFormatterOptions>(
             options => options.IncludeScopes = true)
         .AddConsole(options => 
             options.FormatterName = nameof(GoogleCloudConsoleFormatter));
