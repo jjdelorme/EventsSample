@@ -8,8 +8,10 @@ RUN dotnet publish -r linux-x64 --self-contained true -p:PublishSingleFile=true 
 FROM node:lts AS web-build
 WORKDIR /src
 COPY /web .
-RUN npm install -g react-scripts
-RUN npm install && BUILD_PATH='/wwwroot' react-scripts build
+RUN npm install -g react-scripts && npm install
+RUN BUILD_PATH='/wwwroot' \
+    REACT_APP_VERSION=$(npm -s run env echo '$npm_package_version') \
+    react-scripts build
 
 # Combine both into the final container
 FROM mcr.microsoft.com/dotnet/runtime-deps:6.0 as runtime
