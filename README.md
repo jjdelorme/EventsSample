@@ -15,9 +15,11 @@ Demonstrates an ASP.NET application that serves a static React single page appli
 
 ## Prerequisites
 
-The build the application locally, you must have node.js installed for the Web React application and .NET 6 SDK (Release Candidate 1) for the API.  This could be on Windows, Mac or Linux.  The instructions below are all based on executing from a bash shell. 
+1. The build the application locally you must have [node.js installed](https://nodejs.org/en/download/) for the static web application and .NET 6 SDK (Release Candidate 1) for the API.  This can be run Windows (or Windows with WSL), Mac or Linux.  All instructions are based on executing from a bash shell. 
 
-See [Setting up a .NET development environment](https://cloud.google.com/dotnet/docs/setup) if you are new to .NET development with Google Cloud.
+1. See [Setting up a .NET development environment](https://cloud.google.com/dotnet/docs/setup) if you are new to .NET development with Google Cloud.
+
+1. Clone this repository locally.
 
 ## Build the Web Application
 ```bash
@@ -35,13 +37,13 @@ dotnet build
 
 ## Known Issues
 
-Use proxy in the `package.json` file to workaround [CORS issues](https://create-react-app.dev/docs/proxying-api-requests-in-development/) when using the development server for react.
+* Use proxy in the `package.json` file to workaround [CORS issues](https://create-react-app.dev/docs/proxying-api-requests-in-development/) when using the development server for react.
 
-You can't use ASP.NET 6 hot reload with signalR.  You also cannot use development server proxies.
+* You can't use ASP.NET 6 hot reload with signalR.  You also cannot use a development server proxy with signalR.
 
 ## Testing locally
 
-1. Follow the previous [instructions](https://cloud.google.com/dotnet/docs/setup) to setup your local development machine.  Make sure to download a JSON key which we'll save in the root of this project as `key.json`.
+1. Follow the previous [instructions](https://cloud.google.com/dotnet/docs/setup) to setup your local development machine.  Make sure to download a JSON key and save in the root directory of this project as `key.json`.
 
 1. Build the container locally
     ```bash
