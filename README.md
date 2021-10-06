@@ -15,11 +15,15 @@ Demonstrates an ASP.NET application that serves a static React single page appli
 
 ## Prerequisites
 
-1. The build the application locally you must have [node.js installed](https://nodejs.org/en/download/) for the static web application and .NET 6 SDK (Release Candidate 1) for the API.  This can be run Windows (or Windows with WSL), Mac or Linux.  All instructions are based on executing from a bash shell. 
+1. To build the web application locally you must have [node.js installed](https://nodejs.org/en/download/) and .NET 6 SDK (Release Candidate 1) for the API.  This can be run Windows (Windows with WSL), Mac or Linux.  All instructions are based on a bash like shell. 
 
 1. See [Setting up a .NET development environment](https://cloud.google.com/dotnet/docs/setup) if you are new to .NET development with Google Cloud.
 
 1. Clone this repository locally.
+
+## Build the API Server
+cd api/
+dotnet build
 
 ## Build the Web Application
 ```bash
@@ -27,23 +31,28 @@ cd web/
 npm run install
 npm run build
 ```
-This outputs the optimized static web application to ../api/wwwroot as the api server actually serves up the static content for simplicity.
+This outputs the optimized static web application to `../api/wwwroot`.  The API serves the static content for simplicity with `UseStaticFiles()` using the default directory.
 
-During development you can use hot loading with the `development server` to see changes in realtime by executing `npm start`.
+## Developing locally
 
-## Build API Server
-cd api/
-dotnet build
+To start the API server run `dotnet run` from the `\api` directory.
+
+During development you can hot reload the static React HTML/JS/CSS content using the `development server` by running `npm start`.  When using the node.js development server the application will be hosted on 2 different ports:
+
+* Port **3000** will serve the static content using node.js
+* Port **5000** will serve the API, but it will be proxied through port 3000 (see below).
 
 ## Known Issues
 
-* Use proxy in the `package.json` file to workaround [CORS issues](https://create-react-app.dev/docs/proxying-api-requests-in-development/) when using the development server for react.
+* Use the `proxy` field in `package.json` to workaround [CORS issues](https://create-react-app.dev/docs/proxying-api-requests-in-development/) when using the development server for react.
 
-* You can't use ASP.NET 6 hot reload with signalR.  You also cannot use a development server proxy with signalR.
-
-## Testing locally
+* You can not use ASP.NET 6 hot reloading with signalR.  You also cannot use a development server proxy with signalR.
 
 1. Follow the previous [instructions](https://cloud.google.com/dotnet/docs/setup) to setup your local development machine.  Make sure to download a JSON key and save in the root directory of this project as `key.json`.
+
+## Building and running in a container locally
+
+The application will run in a container when deployed to Cloud Run.  
 
 1. Build the container locally
     ```bash
@@ -63,6 +72,8 @@ dotnet build
         -e ConnectionString=$CONNECTION_STRING \
         eventssample:v0
     ```    
+
+At this stage you could deploy this container directly to a Google Artifact Registry and point Cloud Run to it, but for this sample we're going to leverage the [deploying from source](https://cloud.google.com/run/docs/deploying-source-code) capability in Cloud Run which leverages Cloud Build behind the scenes to automatically build and deploy the container.
 
 ## Deployment
 
