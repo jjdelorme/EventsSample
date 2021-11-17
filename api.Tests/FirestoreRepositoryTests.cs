@@ -13,10 +13,18 @@ namespace api.Tests;
 public class FirestoreRepositoryTests
 {
     private readonly IRepository _repository;
+    private User _testUser;
 
     public FirestoreRepositoryTests()
     {
         _repository = CreateRepository();
+        _testUser = new User
+        {
+            Email = "test@test.com",
+            Name = "Test Tester",
+            IsAdmin = true,
+            // LastLogin = DateTime.UtcNow
+        };
     }
 
     [Fact]
@@ -36,9 +44,9 @@ public class FirestoreRepositoryTests
     [Fact]
     public async Task TestGetUser()
     {
-        var user = await _repository.GetUserAsync("test@gmail.com");
+        var user = await _repository.GetUserAsync(_testUser.Email);
         Assert.NotNull(user);
-        Assert.True(user.Email == "test@gmail.com");
+        Assert.True(user.Email == _testUser.Email);
     }
 
     [Fact]
@@ -58,15 +66,7 @@ public class FirestoreRepositoryTests
     [Fact]
     public async Task TestCreateUserAsync()
     {
-        var user = new User
-        {
-            Email = "test@gmail.com",
-            Name = "Test Tester",
-            IsAdmin = true,
-            // LastLogin = DateTime.UtcNow
-        };
-
-        await _repository.CreateUserAsync(user);
+        await _repository.CreateUserAsync(_testUser);
     }
 
     private IRepository CreateRepository()
