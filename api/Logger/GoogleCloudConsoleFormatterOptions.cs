@@ -19,6 +19,17 @@ using System.Text;
 
 namespace Google.Cloud.Logging.Console
 {
+    public static class GoogleCloudConsoleFormatterConfig
+    {
+        public static void AddGoogleFormatLogger(this ILoggingBuilder logging)
+        {
+            logging
+                .AddConsoleFormatter<GoogleCloudConsoleFormatter, GoogleCloudConsoleFormatterOptions>(
+                    options => options.IncludeScopes = true)
+                .AddConsole(options => 
+                    options.FormatterName = nameof(GoogleCloudConsoleFormatter));
+        }
+    }
 
     /// <summary>
     /// Options for <see cref="GoogleCloudConsoleFormatter"/>.

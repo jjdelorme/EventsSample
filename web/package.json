@@ -1,6 +1,6 @@
 {
   "name": "simple-react",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "private": true,
   "proxy": "http://localhost:5000/",
   "dependencies": {
@@ -13,6 +13,7 @@
     "date-fns": "^2.24.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-google-login": "^5.2.2",
     "react-scripts": "4.0.3",
     "uuid": "^8.3.2"
   },

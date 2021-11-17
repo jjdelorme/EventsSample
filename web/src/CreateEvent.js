@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -9,9 +9,16 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import DatePicker from '@mui/lab/DatePicker';
 import {v1 as uuid} from 'uuid'; 
+import Error from './Error';
 
 export default function CreateEvent(props) {
   const [eventDate, setEventDate] = React.useState(new Date());
+  const [error, setError] = useState(null);
+  const user = props.user;
+
+  const handleErrorClose = () => {
+    setError(null);
+  }
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -27,7 +34,9 @@ export default function CreateEvent(props) {
 
     const requestOptions = {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+                 'Authorization': 'Bearer ' + user.authToken 
+      },
       body: JSON.stringify(
         { 
           id: uuid(),
@@ -37,11 +46,19 @@ export default function CreateEvent(props) {
           description: data.get('description')
         })
     };
-    fetch('/events', requestOptions);
+    fetch('/events', requestOptions)
+    .then((response) => {
+      if (!response.ok)
+        setError(`Unable to create event ${response.statusText}`);
+    })
+    .catch((err) => {
+      setError(`Unexpected error ${err}`);
+    });
   };
 
   return (
     <Container component="main" maxWidth="xs">
+      <Error message={error} onErrorClose={handleErrorClose} />
       <Box
         sx={{
           marginTop: 8,

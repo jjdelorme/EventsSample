@@ -10,7 +10,6 @@ steps:
         --platform managed \
         --allow-unauthenticated \
         --update-env-vars ProjectId=$PROJECT_ID \
-        --update-secrets=ConnectionString=EventsConnectionString:2 \
+        --set-secrets=/app/keys/public/public-key.pem=JwtPublicKey:latest,/app/keys/private/private-key.pem=JwtPrivateKey:latest \
         --source . \
-        --vpc-connector=mongodb-vpc \
         eventssample

@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -7,24 +7,47 @@ import TableRow from '@mui/material/TableRow';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Title from './Title';
+import Error from './Error';
 
 export default function Events(props) {
+  const [error, setError] = useState(null);
   const events = props.events;
   const onDeleted = props.onDeletedEvent;
+  const user = props.user;
+  const loggedIn = user != null;
 
   const deleteEvent = (id) => {
     console.log('deleting event', id);
-    const requestOptions = {
-      method: 'DELETE'
-    };
-    fetch('/events/' + id, requestOptions);  
     
-    if (onDeleted != null)
-      onDeleted(id);
+    if (!loggedIn) {
+      setError('Must be logged in to delete event.');
+      return;
+    }
+
+    const requestOptions = {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${user.authToken}` },
+    };
+      
+    fetch('/events/' + id, requestOptions).then((response) => {
+      if (response.ok) {
+        if (onDeleted != null)
+          onDeleted(id);
+      } else {
+        setError(`Unable to delete event: ${response.statusText}.`);
+      }
+    }).catch((error) => {
+      setError(`Unexpected error: ${error}`);
+    });
+  }
+
+  const handleErrorClose = () => {
+    setError(null);
   }
 
   return (
     <React.Fragment>
+      <Error message={error} onErrorClose={handleErrorClose} />
       <Title>Recent Events</Title>
       <Table size="small">
         <TableHead>
@@ -44,7 +67,7 @@ export default function Events(props) {
               <TableCell>{row.product}</TableCell>
               <TableCell>{row.description}</TableCell>
               <TableCell>
-              <IconButton onClick={() => deleteEvent(row.id)} aria-label="delete">
+              <IconButton disabled={!loggedIn} onClick={() => deleteEvent(row.id)} aria-label="delete">
                 <DeleteIcon />
               </IconButton>                
               </TableCell>

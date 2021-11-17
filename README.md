@@ -21,6 +21,17 @@ Demonstrates an ASP.NET application that serves a static React single page appli
 
 1. Clone this repository locally.
 
+## Required configuration
+1. For events persistance a MongoDb database `ConnectionString` must be populated in appsettings 
+
+1. For JWT token signing to enable authorization of the API calls a Public (`PublicKeyPemFile`) / Private (`PublicKeyPemFile`) key pair must be created in `.pem` format, if the location or filenames differ, change this in appsettings.  See this for [creating rsa keys](https://www.scottbrady91.com/openssl/creating-rsa-keys-using-openssl).
+
+1. To enable Google authentication a `GoogleClientId` must be created and stored in appsettings.  The Google client ID is created using the [Google developer console](https://console.developers.google.com/).  Choose `Web Application` and add `http://localhost:5000` as an *Authorized JavaScript origins*.
+
+1. The Google client ID must be embedded into the client side code at build time.  To enable this set the `REACT_APP_GOOGLE_CLIENTID` environment variable prior to building the web application.
+
+### 
+
 ## Build the API Server
 cd api/
 dotnet build
@@ -35,6 +46,8 @@ This outputs the optimized static web application to `../api/wwwroot`.  The API 
 
 ## Developing locally
 
+1. Follow the previous [instructions](https://cloud.google.com/dotnet/docs/setup) to setup your local development machine.  Make sure to download a JSON key and save in the root directory of this project as `key.json`.
+
 To start the API server run `dotnet run` from the `\api` directory.
 
 During development you can hot reload the static React HTML/JS/CSS content using the `development server` by running `npm start`.  When using the node.js development server the application will be hosted on 2 different ports:
@@ -44,11 +57,11 @@ During development you can hot reload the static React HTML/JS/CSS content using
 
 ## Known Issues
 
-* Use the `proxy` field in `package.json` to workaround [CORS issues](https://create-react-app.dev/docs/proxying-api-requests-in-development/) when using the development server for react.
+* Use the `proxy` field in `package.json` to workaround [CORS issues](https://create-react-app.dev/docs/proxying-api-requests-in-development/) when using the *development server for react* (`npm start`).
 
-* You can not use ASP.NET 6 hot reloading with signalR.  You also cannot use a development server proxy with signalR.
+* HOWEVER, you cannot use a *development server* proxy with signalR, which means that notifications will not work when running through the development server locally.  To test end-to-end locally, run `npm run build` in the `web` directory and then run the api with `dotnet run` in the `api` directory for the ASP.NET server to serve static content instead of the development server.
 
-1. Follow the previous [instructions](https://cloud.google.com/dotnet/docs/setup) to setup your local development machine.  Make sure to download a JSON key and save in the root directory of this project as `key.json`.
+* Also note that you cannot use ASP.NET 6 hot reloading (`dotnet watch`) with signalR.
 
 ## Building and running in a container locally
 
