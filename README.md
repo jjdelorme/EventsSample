@@ -1,17 +1,26 @@
 # Events Sample
 
-Demonstrates an ASP.NET application that serves a static React single page application which can view, edit, delete data stored in a Mongo database.  The application publishes events to a Google PubSub topic while also separately subscribing to the topic to deliver realtime notifications using ASP.NET SignalR.
+Demonstrates an ASP.NET application that serves a static React single page application (SPA) which can view, edit, delete data stored in a Google Firestore database or a Mongo database.  The application publishes events to a Google PubSub topic while also separately subscribing to the topic to deliver realtime notifications using ASP.NET SignalR.
+
+## Authentication & Authorization
+
+The client side SPA uses [Google Identity](https://developers.google.com/identity/gsi/web/guides/overview) to provide `Sign in with Google` authentication.  The client side will recieve an `Id Token` from Google Identity which it will exchange for an `Access Token` by calling the `/user/authenticate` controller action which will issue a JWT token that will be used by all subsequent client side api calls to the server.  
+
+By using the provided hard coded `GoogleClientId` you will be able to authenticate when using the default localhost:5000 as the api server, but if you change ports or host elsewhere, you will need to follow the [guide](https://developers.google.com/identity/gsi/web/guides/overview) to create your own Google Client Id and set the appropriate `Authorized JavaScript origins`.
 
 ## Technologies Demonstrated
 
 * React bootstrapped with [Create React App](https://github.com/facebook/create-react-app) and the [Material UI library](https://mui.com/)
-* ASP.NET 6 (Release Candidate 1) with [Minimal API](https://www.hanselman.com/blog/exploring-a-minimal-web-api-with-aspnet-core-6)
-* ASP.NET SignalR
-* MongoDB [.NET client](https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mongo-app?view=aspnetcore-6.0&tabs=visual-studio-code)
+* ASP.NET 6 with [Minimal API](https://www.hanselman.com/blog/exploring-a-minimal-web-api-with-aspnet-core-6)
+* Google Cloud Run
+* Google Firestore
 * Google PubSub
-* Google Cloud Run 
-* Google Secret Manager
+* Google Secret Manager 
 * Google Cloud Build
+* Google Cloud Operations with structured logging
+* Google Identity Services
+* ASP.NET SignalR
+* (Optional) MongoDB [.NET client](https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mongo-app?view=aspnetcore-6.0&tabs=visual-studio-code) 
 
 ## Prerequisites
 
@@ -19,18 +28,18 @@ Demonstrates an ASP.NET application that serves a static React single page appli
 
 1. See [Setting up a .NET development environment](https://cloud.google.com/dotnet/docs/setup) if you are new to .NET development with Google Cloud.
 
+1. Enable Cloud Run, Cloud Build, Secret Manager, Pub/Sub, Firestore (Native Mode) apis for your Google Cloud project.
+
 1. Clone this repository locally.
 
-## Required configuration
-1. For events persistance a MongoDb database `ConnectionString` must be populated in appsettings 
+## Configuration
+1. (Optional) To persist with a MongoDb database `MongoDb::ConnectionString` must be populated in appsettings 
 
 1. For JWT token signing to enable authorization of the API calls a Public (`PublicKeyPemFile`) / Private (`PublicKeyPemFile`) key pair must be created in `.pem` format, if the location or filenames differ, change this in appsettings.  See this for [creating rsa keys](https://www.scottbrady91.com/openssl/creating-rsa-keys-using-openssl).
 
 1. To enable Google authentication a `GoogleClientId` must be created and stored in appsettings.  The Google client ID is created using the [Google developer console](https://console.developers.google.com/).  Choose `Web Application` and add `http://localhost:5000` as an *Authorized JavaScript origins*.
 
-1. The Google client ID must be embedded into the client side code at build time.  To enable this set the `REACT_APP_GOOGLE_CLIENTID` environment variable prior to building the web application.
-
-### 
+1. The Google client ID must be embedded into the client side code at build time.  This is currently hard coded as `GoogleClientId` found in `./web/src/login.js`.
 
 ## Build the API Server
 cd api/
