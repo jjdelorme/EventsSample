@@ -5,12 +5,12 @@ steps:
   args: 
     - '-c'
     - |
-        gcloud beta run deploy \
+        gcloud run deploy \
         --region us-central1 \
         --platform managed \
         --allow-unauthenticated \
         --update-env-vars ProjectId=$PROJECT_ID \
         --set-secrets=/app/keys/public/public-key.pem=JwtPublicKey:latest,/app/keys/private/private-key.pem=JwtPrivateKey:latest \
-        --service-account="eventssample@$PROJECT_ID.iam.gserviceaccount.com" && \ \
-        --image . \
+        --service-account="eventssample-sa@$PROJECT_ID.iam.gserviceaccount.com" \
+        --source . \
         eventssample

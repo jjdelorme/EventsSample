@@ -1,6 +1,6 @@
 # Events Sample
 
-Demonstrates a complete, yet simple ASP.NET application that enables viewing, editing and receiving notifcations for data persisted with NoSQL in [Google Firestore](https://cloud.google.com/firestore#section-4) or a Mongo database.  The server publishes events to a [Google PubSub](https://cloud.google.com/pubsub#section-5) topic while separately subscribing to the topic so that realtime notifications will be delivered using [ASP.NET SignalR](https://dotnet.microsoft.com/apps/aspnet/signalr) over a websocket connection from the server back to the client.
+Demonstrates a complete, yet simple ASP.NET application deployed to [Google Cloud Run](https://cloud.google.com/run/docs/) that enables viewing, editing and receiving notifcations for data persisted with NoSQL in [Google Firestore](https://cloud.google.com/firestore#section-4) or a Mongo database.  The server publishes events to a [Google PubSub](https://cloud.google.com/pubsub#section-5) topic while separately subscribing to the topic so that realtime notifications will be delivered using [ASP.NET SignalR](https://dotnet.microsoft.com/apps/aspnet/signalr) over a websocket connection from the server back to the client.
 
 ## Overview
 ### Technologies Demonstrated
@@ -18,7 +18,7 @@ Demonstrates a complete, yet simple ASP.NET application that enables viewing, ed
 * (Optional) MongoDB [.NET client](https://docs.microsoft.com/en-us/aspnet/core/tutorials/first-mongo-app?view=aspnetcore-6.0&tabs=visual-studio-code) 
 
 ### Client
-The client side web application is built as a Single Page Application (SPA) using [React](https://reactjs.org) and is bootstrapped with [`create-react-app`](https://create-react-app.dev/) which bundles all html/javascript/css as static content into the `wwwroot` folder of the server at build time.  The client application is completely static and runs entirely in the browser, making service calls to the backend apis using javascript [`fetch(...)`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch).  
+The client side web application is built as a Single Page Application (SPA) using [ReactJS](https://reactjs.org) and is bootstrapped with [`create-react-app`](https://create-react-app.dev/) which bundles all html/javascript/css as static content into the `wwwroot` folder of the server at build time.  The client application is completely static and runs entirely in the browser, making service calls to the backend apis using javascript [`fetch(...)`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch).  
 
 For simplicity this static content is served by the backend server, but this is not a requirement and there is absolutely no coupling.  You could [host the static website in a Cloud Storage bucket](https://cloud.google.com/storage/docs/hosting-static-website), but SSL must be configured as well as [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 
@@ -26,18 +26,8 @@ For simplicity this static content is served by the backend server, but this is 
 
 The server application is implemented with C# using ASP.NET 6.  The server exposes REST APIs with ASP.NET `Controller`s, hosts ASP.NET SignalR as a service with `AddSignalR()`, serves the static web application with `UseStaticFiles()` and takes advantage of the new [ASP.NET 6 minimal API](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis?view=aspnetcore-6.0).  The server is built and published as a [self contained](https://docs.microsoft.com/en-us/dotnet/core/deploying/), [single file](https://docs.microsoft.com/en-us/dotnet/core/deploying/single-file) binary for Linux which uses the built in [Kestrel web server for ASP.NET](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-6.0).  The server is packaged in a minimal linux container using the [Official .NET Runtime Dependencies Docker image](https://hub.docker.com/_/microsoft-dotnet-runtime-deps/).
 
-## Authentication & Authorization
-
-The application uses [Google Identity](https://developers.google.com/identity/gsi/web/guides/overview) to provide `Sign in with Google` authentication.  The client side will recieve an `Id Token` from Google Identity which it will exchange for an `Access Token` by calling the `/user/authenticate` controller action which will issue a JWT token that will be used by all subsequent client side api calls to the server.  
-
-By using the provided hard coded `GoogleClientId` you will be able to authenticate when using the default localhost:5000 as the api server, but if you change ports or host elsewhere, you will need to follow the [guide](https://developers.google.com/identity/gsi/web/guides/overview) to create your own Google Client Id and set the appropriate `Authorized JavaScript origins`.
-
-### Configuration
-1. For JWT token signing to enable authorization of the API calls a Public (`PublicKeyPemFile`) / Private (`PublicKeyPemFile`) key pair must be created in `.pem` format, if the location or filenames differ, change this in appsettings.  See this for [creating rsa keys](https://www.scottbrady91.com/openssl/creating-rsa-keys-using-openssl).
-
-1. To enable Google authentication a `GoogleClientId` must be created and stored in appsettings.  The Google client ID is created using the [Google developer console](https://console.developers.google.com/).  Choose `Web Application` and add `http://localhost:5000` as an *Authorized JavaScript origins*.
-
-1. The Google client ID must be embedded into the client side code at build time.  This is currently hard coded as `GoogleClientId` found in `./web/src/login.js`.
+### Client/Server Authentication
+The client application uses `Sign in with Google` to authenticate end-users and restricts edits to only authenticated users.  The backing APIs are secured using built-in ASP.NET authorization.  More details are in a separate [README](./README-auth.md).
 
 ## Deploying to Google Cloud
 
@@ -120,10 +110,10 @@ At this stage you could deploy this container directly to a Google Artifact Regi
 
 ## Deployment
 
-Build and deploy the application with Google Cloud Build by executing this single command from the project root directory:
+Build and deploy the application with Google Cloud Build by executing this single command from the project root directory.  Complete build of the application, container image and deploy typically takes 7-8 minutes, but to be safe just set the timeout to 15 minutes to avoid possibility of timeout failure.  This could be significantly optimized by parallelizing the web and api builds, but instead it has been optimized for simplicity.
 ```bash
 # Run from ./
-gcloud builds submit
+gcloud builds submit --timeout=15m
 ```
 
 Cloud Build will bundle up the directory, store it in a secure Cloud Storage bucket and kick off a build agent.  The build agent by default will look for a `cloudbuild.yaml` file as defined in the root of this project.  
