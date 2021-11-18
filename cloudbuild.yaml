@@ -11,5 +11,6 @@ steps:
         --allow-unauthenticated \
         --update-env-vars ProjectId=$PROJECT_ID \
         --set-secrets=/app/keys/public/public-key.pem=JwtPublicKey:latest,/app/keys/private/private-key.pem=JwtPrivateKey:latest \
-        --source . \
+        --service-account="eventssample@$PROJECT_ID.iam.gserviceaccount.com" && \ \
+        --image . \
         eventssample
