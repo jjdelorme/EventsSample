@@ -42,7 +42,7 @@ The script also assigns the appropriate permissions for the built-in Google Clou
 1. Run `./install.sh` from the project root directory
 
 ### To build the application locally [OPTIONAL]
-For the purposes of this demonstration this should all be run on Mac, Linux or WSL (if on Windows).  All instructions in this README are based on a bash _like_ shell.  Building and running the application locally will still connect to a Google Cloud for the demonstrated cloud services such as Pub/Sub, Firestore, Identity, etc...
+All instructions in this README are based on a bash _like_ shell on Mac, Linux or WSL (Windows).  Building and running the application locally will require connecting to a Google Cloud project for cloud services such as Pub/Sub, Firestore, Identity, etc...
 
 1. See [Setting up a .NET development environment](https://cloud.google.com/dotnet/docs/setup) if you are new to .NET development with Google Cloud for additional instructions on how to setup the Google Cloud SDK with credentials so that you can securely access GCP cloud services from the application locally.
     * For the purposes of this demo, store your downloaded key in the *project's root* directory as `./key.json` and set your environment variable: `export GOOGLE_APPLICATION_CREDENTIALS=$PWD/key.json`
@@ -55,7 +55,7 @@ For the purposes of this demonstration this should all be run on Mac, Linux or W
     npm run install
     npm run build
     ```
-    This outputs the optimized static web application to `../api/wwwroot`.  The API serves the static content for simplicity with `UseStaticFiles()` using the default directory.
+    This outputs the optimized static web application to `../api/wwwroot`.  The API serves the static content with `UseStaticFiles()`.
 
 1. Build the API Server
     ```bash
@@ -64,8 +64,6 @@ For the purposes of this demonstration this should all be run on Mac, Linux or W
     ```
 
 ### Running locally [OPTIONAL]
-1. Follow the previous step's [instructions](https://cloud.google.com/dotnet/docs/setup) to setup your local development machine including creating a service account,downloading a JSON key as assigning the path to in the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
-
 1. Start the server run `dotnet run` from the `./api` directory which will start listening on port 5000.
 
 1. Launch your browser: [http://localhost:5000](http://localhost:5000)
@@ -82,12 +80,12 @@ Launch your browser with [http://localhost:3000](http://localhost:3000).  Each t
 
 If you launch the api server with `dotnet watch` from `./api` directory (_instead_ of `dotnet run`) you will see the new [ASP.NET 6 support for hot reloading](https://devblogs.microsoft.com/dotnet/introducing-net-hot-reload/).  
 
-### NOTE: Local development & hot reload with signalR
+### WARNING: Hot reload with signalR
 You cannot use a *development server* proxy with signalR. This means that notifications will not work when running through the development server locally.  To test end-to-end locally, run `npm run build` in the `web` directory and then run the api with `dotnet run` in the `api` directory for the ASP.NET server to serve static content instead of the development server.  There are also issues running signalR with `dotnet watch`, so you cannot use hot reload to test any changes with signalR notifications on the server or client.
 
 ## Building and running in a container locally
 
-The application will run in a container when deployed to Cloud Run.  
+The application will run in a container when deployed to Cloud Run.  To test building and running a container locally:
 
 1. Build the container locally
     ```bash
