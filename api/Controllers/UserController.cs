@@ -18,31 +18,48 @@ namespace EventsSample
         private readonly JwtGenerator _jwtGenerator;
         private readonly IRepository _repository;
         private readonly ILogger<UserController> _log;
-        private readonly string _googleClientId;
+        private readonly AuthenticationSettings _config;
 
         public UserController(ILogger<UserController> log, 
                 IConfiguration config, IRepository repository)
         {
-            var jwtConfig = config.GetSection(AuthenticationSettings.Section)
+            _config = config.GetSection(AuthenticationSettings.Section)
                 .Get<AuthenticationSettings>();
 
             _log = log;
             _repository = repository;
-            _jwtGenerator = new JwtGenerator(jwtConfig);
-            _googleClientId = jwtConfig.GoogleClientId;
+            _jwtGenerator = new JwtGenerator(_config);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("/user/clientid")]
+        public string GoogleClientId()
+        {
+            return _config.Enabled ? _config.GoogleClientId : "";
         }
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody] AuthenticateRequest data)
         {
-            var settings = new GoogleJsonWebSignature.ValidationSettings();
-            settings.Audience = new string[] { _googleClientId };
-            
-            var payload = GoogleJsonWebSignature.ValidateAsync(
-                data.IdToken, settings).Result;
+            User user = null;
+            GoogleJsonWebSignature.Payload payload = null;
 
-            User user = await _repository.GetUserAsync(payload.Email);
+            var settings = new GoogleJsonWebSignature.ValidationSettings();
+            settings.Audience = new string[] { _config.GoogleClientId };
+            
+            if (_config.Enabled)
+            {
+                payload = GoogleJsonWebSignature.ValidateAsync(
+                    data.IdToken, settings).Result;                
+
+                user = await _repository.GetUserAsync(payload.Email);
+            }
+            else
+            {
+                user = new User { Email = "noemail@noemail.com" };
+                payload = new GoogleJsonWebSignature.Payload();
+            }
 
             if (user == null)
             {

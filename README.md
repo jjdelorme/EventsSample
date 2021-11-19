@@ -27,7 +27,7 @@ For simplicity this static content is served by the backend server, but this is 
 The server application is implemented with C# using ASP.NET 6.  The server exposes REST APIs with ASP.NET `Controller`s, hosts ASP.NET SignalR as a service with `AddSignalR()`, serves the static web application with `UseStaticFiles()` and takes advantage of the new [ASP.NET 6 minimal API](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis?view=aspnetcore-6.0).  The server is built and published as a [self contained](https://docs.microsoft.com/en-us/dotnet/core/deploying/), [single file](https://docs.microsoft.com/en-us/dotnet/core/deploying/single-file) binary for Linux which uses the built in [Kestrel web server for ASP.NET](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-6.0).  The server is packaged in a minimal linux container using the [Official .NET Runtime Dependencies Docker image](https://hub.docker.com/_/microsoft-dotnet-runtime-deps/).
 
 ### Client/Server Authentication
-The client application uses `Sign in with Google` to authenticate end-users and restricts edits to only authenticated users.  The backing APIs are secured using built-in ASP.NET authorization.  More details are in a separate [README](./README-auth.md).
+The client application can be configured to use `Sign in with Google` to authenticate end-users and restricts edits to only authenticated users.  The backing APIs are secured using built-in ASP.NET authorization.  More details are in a separate [README](./README-auth.md).
 
 ## Deploying to Google Cloud
 

@@ -1,21 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Button from '@mui/material/Button';
 import { Avatar } from '@mui/material';
 import { GoogleLogin, GoogleLogout } from 'react-google-login';
 import Error from './Error';
 
+async function getGoogleClientId() {
+    console.log('GetGoogleClientId');
+    const response = await fetch("/user/clientid");
+    const text = await response.text();
+    return text;
+}
+
+async function authenticate(token) {
+    // Authenticate against our API
+    const authUrl = '/user/authenticate';
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+        { 
+            idToken: token
+        })
+    };
+    
+    const response = await fetch(authUrl, requestOptions);
+
+    if (response.ok) {
+        return await response.json();
+    } else {
+        throw new Error("Unable to login.");
+    }
+}
+
 export default function Login(props) {
-    const GoogleClientId =
-     "831737255503-e4d00s4rf53kfha1t6h250siulge5gvc.apps.googleusercontent.com";
+    const [clientId, setClientId] = useState(null);
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
     const handleErrorClose = () => setError(null);
-    
-    const cbSetUser = (data) => {
+    const onSetUser = props.setUser;
+
+    const cbSetUser = useCallback((data) => {
         setUser(data);
-        props.setUser(data);
-    }
+        onSetUser(data);
+    }, [onSetUser]);
     
+    useEffect(() => {
+        getGoogleClientId()
+        .then(clientId => {
+            if (clientId === "") {
+                authenticate("")
+                .then(data => cbSetUser(data));
+            }
+            else {
+                setClientId(clientId);
+            }
+        });
+    }, [cbSetUser]);
+
+    // Don't show login if we don't have a client id.
+    if (clientId == null) {
+        return null;
+    }
+
     const responseGoogle = (response) => {
         console.log('login response', response);
 
@@ -23,24 +69,7 @@ export default function Login(props) {
             const token = response.tokenId;
             console.log('token', token);
 
-            // Authenticate against our API
-            const authUrl = '/user/authenticate';
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(
-                { 
-                    idToken: token
-                })
-            };
-            fetch(authUrl, requestOptions).then((response) => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error("Unable to login.");
-                }
-            })
-            .then(data => {
+            authenticate(token).then(data => {
                 if (data != null)
                     console.log('auth', data);
                     cbSetUser(data);
@@ -61,7 +90,7 @@ export default function Login(props) {
     if (user == null)
         login = <React.Fragment>
           <GoogleLogin
-            clientId={GoogleClientId}
+            clientId={clientId}
             render={renderProps => (
                 <Button onClick={renderProps.onClick} 
                     disabled={renderProps.disabled}
@@ -79,7 +108,7 @@ export default function Login(props) {
         </React.Fragment>
     else 
         login = <GoogleLogout
-                    clientId={process.env.GoogleClientId}
+                    clientId={clientId}
                     render={renderProps => (
                         <Button onClick={renderProps.onClick}
                                 disabled={renderProps.disabled}>

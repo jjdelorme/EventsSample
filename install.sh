@@ -40,8 +40,9 @@ done
 # Create an RSA key pair and save as secrets.
 # 
 echo 'Creating an RSA key pair for JWT token signing...'
-PRIVATE_KEY=private-key.pem
-PUBLIC_KEY=public-key.pem
+mkdir -p ./api/keys/
+PRIVATE_KEY=./api/keys/private/private-key.pem
+PUBLIC_KEY=./api/keys/public/public-key.pem
 
 # generate a private key with the correct length
 openssl genrsa -out $PRIVATE_KEY 3072
@@ -52,9 +53,9 @@ openssl rsa -in $PRIVATE_KEY -pubout -out $PUBLIC_KEY
 # store in secret manager
 echo 'Storing RSA key pair for JWT token signing in secret manager...'
 
-gcloud secrets create PrivateJwtKey --data-file=$PRIVATE_KEY
+gcloud secrets create JwtPrivateKey --data-file=$PRIVATE_KEY
 
-gcloud secrets create PubilcJwtKey --data-file=$PUBLIC_KEY
+gcloud secrets create JwtPubilcKey --data-file=$PUBLIC_KEY
 
 #
 # Assign permissions required for the cloud build service account
