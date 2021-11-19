@@ -37,27 +37,6 @@ gcloud services enable $api
 done
 
 #
-# Create an RSA key pair and save as secrets.
-# 
-echo 'Creating an RSA key pair for JWT token signing...'
-mkdir -p ./api/keys/
-PRIVATE_KEY=./api/keys/private/private-key.pem
-PUBLIC_KEY=./api/keys/public/public-key.pem
-
-# generate a private key with the correct length
-openssl genrsa -out $PRIVATE_KEY 3072
-
-# generate corresponding public key
-openssl rsa -in $PRIVATE_KEY -pubout -out $PUBLIC_KEY
-
-# store in secret manager
-echo 'Storing RSA key pair for JWT token signing in secret manager...'
-
-gcloud secrets create JwtPrivateKey --data-file=$PRIVATE_KEY
-
-gcloud secrets create JwtPubilcKey --data-file=$PUBLIC_KEY
-
-#
 # Assign permissions required for the cloud build service account
 #
 echo 'Assigning roles to Cloud Build service account...'
@@ -89,5 +68,27 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member=serviceAccount:$SERVICE_ACCOUNT \
     --role=$role
 done
+
+#
+# Create an RSA key pair and save as secrets.
+# 
+echo 'Creating an RSA key pair for JWT token signing...'
+mkdir -p ./api/keys/private
+mkdir -p ./api/keys/public
+PRIVATE_KEY=./api/keys/private/private-key.pem
+PUBLIC_KEY=./api/keys/public/public-key.pem
+
+# generate a private key with the correct length
+openssl genrsa -out $PRIVATE_KEY 3072
+
+# generate corresponding public key
+openssl rsa -in $PRIVATE_KEY -pubout -out $PUBLIC_KEY
+
+# store in secret manager
+echo 'Storing RSA key pair for JWT token signing in secret manager...'
+
+gcloud secrets create JwtPrivateKey --data-file=$PRIVATE_KEY
+
+gcloud secrets create JwtPubilcKey --data-file=$PUBLIC_KEY
 
 echo 'DONE'
