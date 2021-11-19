@@ -1,7 +1,7 @@
 # Authentication & Authorization
 
 ## Overview
-The application ca be configured to use [Google Identity](https://developers.google.com/identity/gsi/web/guides/overview) to provide `Sign in with Google` authentication.  By default this is not enabled.
+The application can be configured to use [Google Identity](https://developers.google.com/identity/gsi/web/guides/overview) to provide `Sign in with Google` authentication.  **By default this is not enabled**.
 
 ## Prerequisites
 1. You must first [get your Google API client ID](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid) to get an OAuth client ID which we'll call _GoogleClientId_.  
