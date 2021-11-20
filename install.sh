@@ -13,6 +13,9 @@ SA_NAME=eventssample-sa
 SERVICE_ACCOUNT="$SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 BUILD_SERVICE_ACCOUNT="$PROJECT_NUMBER@cloudbuild.gserviceaccount.com"
 
+# Required for Firestore
+APPENGINE_REGION=us-central
+
 # Ensure gcloud has run and configured access to a project.
 [[ -z "$PROJECT_ID" ]] && { echo "ERROR: Please ensure gcloud init has run prior." ; exit 1; }
 
@@ -29,6 +32,7 @@ declare -a apis=("compute.googleapis.com"
     "secretmanager.googleapis.com"
     "run.googleapis.com"
     "pubsub.googleapis.com"
+    "appengine.googleapis.com"
     "firestore.googleapis.com"
     )
 for api in "${apis[@]}"
@@ -93,5 +97,12 @@ echo 'Storing RSA key pair for JWT token signing in secret manager...'
 gcloud secrets create JwtPrivateKey --data-file=$PRIVATE_KEY
 
 gcloud secrets create JwtPublicKey --data-file=$PUBLIC_KEY
+
+# creating firestore database, which requires appengine
+echo 'Creating app engine instance for Firestore...'
+gcloud app create --region=$APPENGINE_REGION
+
+echo 'Creating Firestore database...'
+gcloud alpha firestore databases create --region=$APPENGINE_REGION
 
 echo 'DONE'
