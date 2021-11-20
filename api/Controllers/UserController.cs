@@ -57,7 +57,7 @@ namespace EventsSample
             }
             else
             {
-                user = new User { Email = "noemail@noemail.com" };
+                user = new User { Email = "noemail@noemail.com", IsAdmin = true };
                 payload = new GoogleJsonWebSignature.Payload();
             }
 
