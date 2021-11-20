@@ -25,7 +25,7 @@ All instructions in this README are based on a bash _like_ shell on Mac, Linux o
     ```
 
 ## Run
-1. Start the server run `dotnet run` from the `./api` directory which will start listening on port 5000.
+1. Tp start the server listening on port 5000 run `dotnet run` from the `./api` directory
 
 1. Launch your browser: [http://localhost:5000](http://localhost:5000)
 
@@ -39,7 +39,7 @@ The `proxy` field in `package.json` works around [CORS issues](https://create-re
 
 Launch your browser with [http://localhost:3000](http://localhost:3000).  Each time you change the static React application, your changes will automatically appear.
 
-If you launch the api server with `dotnet watch` from `./api` directory (_instead_ of `dotnet run`) you will see the new [ASP.NET 6 support for hot reloading](https://devblogs.microsoft.com/dotnet/introducing-net-hot-reload/).  
+If you launch the api server with `dotnet watch` from `./api` directory (_instead_ of `dotnet run`) you will see the new [ASP.NET 6 support for hot reloading](https://devblogs.microsoft.com/dotnet/introducing-net-hot-reload/) which will allow you to make some C# code changes without manually recompiling.
 
 ### WARNING: Hot reload with signalR
 You cannot use a *development server* proxy with signalR. This means that notifications will not work when running through the development server locally.  To test end-to-end locally, run `npm run build` in the `web` directory and then run the api with `dotnet run` in the `api` directory for the ASP.NET server to serve static content instead of the development server.  There are also issues running signalR with `dotnet watch`, so you cannot use hot reload to test any changes with signalR notifications on the server or client.
