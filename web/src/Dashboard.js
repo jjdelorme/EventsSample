@@ -8,6 +8,7 @@ import Paper from '@mui/material/Paper';
 import Events from './Events';
 import CreateEvent from './CreateEvent';
 import NewEventNotification from './NewEventNotification';
+import { loadEvents } from './eventService';
 
 function Version(props) {
   return (
@@ -35,16 +36,13 @@ export default function Dashboard(props) {
   };
 
   useEffect(() => {
-    // Load events.
-    const eventsUrl = '/events';
-    fetch(eventsUrl)
-      .then(response => response.json())
-      .then(data => {
-        if (data != null)
-          setEvents(data);
-        else
-          setEvents([]);
-      }); 
+    loadEvents()
+    .then(data => {
+      if (data != null)
+        setEvents(data);
+      else
+        setEvents([]);
+    }); 
   }, []);
 
   return (

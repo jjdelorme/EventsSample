@@ -8,8 +8,8 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import DatePicker from '@mui/lab/DatePicker';
-import {v1 as uuid} from 'uuid'; 
 import Error from './Error';
+import { createEventRequest } from './eventService';
 
 export default function CreateEvent(props) {
   const [eventDate, setEventDate] = React.useState(new Date());
@@ -23,30 +23,8 @@ export default function CreateEvent(props) {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    // eslint-disable-next-line no-console
-    console.log({
-      id: uuid(),
-      type: data.get('eventType'),
-      date: data.get('eventDate'),
-      product: data.get('product'),
-      description: data.get('description')
-    });
 
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json',
-                 'Authorization': 'Bearer ' + user.authToken 
-      },
-      body: JSON.stringify(
-        { 
-          id: uuid(),
-          type: data.get('eventType'),
-          date: data.get('eventDate'),
-          product: data.get('product'),
-          description: data.get('description')
-        })
-    };
-    fetch('/events', requestOptions)
+    createEventRequest(user, data)
     .then((response) => {
       if (!response.ok)
         setError(`Unable to create event ${response.statusText}`);
@@ -119,12 +97,7 @@ export default function CreateEvent(props) {
               />
             </Grid>
           </Grid>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
             Create Event
           </Button>
         </Box>
