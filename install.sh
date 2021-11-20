@@ -3,8 +3,8 @@ set -e
 
 #
 # This script will configure a GCP project to run the sample application
-# by enabling the required APIs and permissions required.  It will also
-# create an RSA key pair for JWT token signing and store as secrets.
+# by enabling the required APIs and permissions.  It will also create an
+# RSA key pair for JWT token signing and store as Secret Manager secrets.
 #
 
 PROJECT_ID=`gcloud config list --format 'value(core.project)' 2>/dev/null`
@@ -57,7 +57,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 done
 
 #
-# Create a service account that will run the app and assign required permissions
+# Create a service account that Cloud Run will execute as and assign required permissions
 #
 echo 'Creating a service account to run the app...'
 gcloud iam service-accounts create $SA_NAME
@@ -77,7 +77,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 done
 
 #
-# Create an RSA key pair and save as secrets.
+# Create an RSA key pair and save as secrets
 # 
 echo 'Creating an RSA key pair for JWT token signing...'
 mkdir -p ./api/keys/private
@@ -98,7 +98,9 @@ gcloud secrets create JwtPrivateKey --data-file=$PRIVATE_KEY
 
 gcloud secrets create JwtPublicKey --data-file=$PUBLIC_KEY
 
-# creating firestore database, which requires appengine
+#
+# Create Firestore database, which requires appengine
+#
 echo 'Creating app engine instance for Firestore...'
 gcloud app create --region=$APPENGINE_REGION
 
