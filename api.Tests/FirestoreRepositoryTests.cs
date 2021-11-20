@@ -28,6 +28,29 @@ public class FirestoreRepositoryTests
     }
 
     [Fact]
+    async Task TestCreateComplexEvent()
+    {
+        var e = new Event() {
+            Id = Guid.NewGuid().ToString(),
+            Type = "Test",
+            ProductObject = new Product() { Sku = "12345", Name = "Foobar",
+                History = new InventoryEvent[] 
+                {
+                    new InventoryEvent() 
+                    {
+                        Timestamp = DateTime.Now,
+                        Units = 5,
+                        User = _testUser
+                    }
+                } 
+            },
+            Date = DateTime.Now.ToString()
+        };
+        
+        await _repository.CreateEventAsync(e);
+    }
+
+    [Fact]
     public async Task TestCreateEventAsync()
     {
         Event item = new Event() {

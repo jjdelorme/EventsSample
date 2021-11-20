@@ -25,6 +25,8 @@ namespace EventsSample
                 {
                     new GenericFirestoreConverter<Event>("Id"),
                     new GenericFirestoreConverter<User>("Email"),
+                    new GenericFirestoreConverter<Product>(),
+                    new GenericFirestoreConverter<InventoryEvent>()
                 }
             }.Build();            
         }
