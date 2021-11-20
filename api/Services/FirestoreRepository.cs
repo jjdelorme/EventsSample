@@ -24,11 +24,9 @@ namespace EventsSample
                 ConverterRegistry = new ConverterRegistry
                 {
                     new GenericFirestoreConverter<Event>("Id"),
-                    new GenericFirestoreConverter<User>("Email"),
-                    new GenericFirestoreConverter<Product>(),
-                    new GenericFirestoreConverter<InventoryEvent>()
+                    new GenericFirestoreConverter<User>("Email")
                 }
-            }.Build();            
+            }.Build();
         }
 
         public async Task<Event> CreateEventAsync(Event eventItem)
