@@ -20,13 +20,18 @@ namespace EventsSample
         /// Create a converter by specifing the unique identifier property name
         /// of the type to be converted.
         /// </summary>
-        public GenericFirestoreConverter(string idProperty)
-        {
+        public GenericFirestoreConverter(string idProperty) : this()
+        {                       
+            if(GetProperty(idProperty) == null)
+                throw new ArgumentException(
+                    $"idProperty must be the name of a public property of type {typeof(T)}");
+            
             _idProperty = idProperty;
-            _properties = GetProperties();
+        }
 
-            // Validate Id
-            GetIdProperty();
+        public GenericFirestoreConverter()
+        {
+            _properties = GetProperties();
         }
 
         public object ToFirestore(T value) 
@@ -62,26 +67,17 @@ namespace EventsSample
 
             if (value is IDictionary<string, object> map)
             {                
-                var idProperty = GetIdProperty();
-
-                foreach(var property in _properties)
+                foreach(var pair in map)
                 {
-                    if (property == idProperty)
-                    {
-                        idProperty.SetValue(item, map[FirestoreId]);
-                    }
+                    PropertyInfo property = null;
+
+                    if (pair.Key == FirestoreId)
+                        property = GetProperty(_idProperty);
                     else
-                    {
-                        if (property.PropertyType == typeof(DateTime))
-                        {
-                            Timestamp obj = (Timestamp)map[property.Name];
-                            property.SetValue(item, obj.ToDateTime());
-                        }
-                        else
-                        {
-                            property.SetValue(item, map[property.Name]);
-                        }
-                    }
+                        property = GetProperty(pair.Key);
+                    
+                    if (property != null)
+                        TrySetValue(item, property, pair.Value);
                 }
             }
 
@@ -96,14 +92,34 @@ namespace EventsSample
                 .ToArray();
         }
 
-        private PropertyInfo GetIdProperty()
+        private PropertyInfo GetProperty(string name)
         {  
-            var id = _properties.Where(p => p.Name == _idProperty).First();        
-            if (id == null)
-                throw new ArgumentException(
-                    $"idProperty must be the name of a public property of type {typeof(T)}");
-            
-            return id;
+            if (_properties?.Count() > 0)
+            {
+                return _properties.Where(p => p.Name == name).First();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private void TrySetValue(T item, PropertyInfo property, object value)
+        {
+            try
+            {
+                if (property.PropertyType == typeof(DateTime))
+                {
+                    Timestamp obj = (Timestamp)value;
+                    property.SetValue(item, obj.ToDateTime());
+                }
+                else
+                {
+                    property.SetValue(item, value);
+                }
+            }
+            catch
+            {} // Ignore failures.
         }
     }
 }
