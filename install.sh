@@ -40,8 +40,10 @@ done
 # Assign permissions required for the cloud build service account
 #
 echo 'Assigning roles to Cloud Build service account...'
-declare -a build_roles=("roles/run.admin"
+declare -a build_roles=("roles/iam.serviceAccountUser"
+    "roles/run.admin"
     "roles/artifactregistry.admin"
+    "roles/secretmanager.secretAccessor"
     )
 for role in "${build_roles[@]}"
 do
@@ -58,6 +60,7 @@ gcloud iam service-accounts create $SA_NAME
 
 echo 'Assigning roles to the service account...'
 declare -a sa_roles=("roles/iam.serviceAccountUser"
+    "roles/run.admin"
     "roles/secretmanager.secretAccessor"
     "roles/pubsub.editor"
     "roles/datastore.user"
