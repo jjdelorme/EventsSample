@@ -17,6 +17,12 @@ function Version(props) {
   );
 }
 
+async function loadEvents() {
+  const eventsUrl = '/events';
+  const response = await fetch(eventsUrl);
+  return response.json();
+}
+
 export default function Dashboard(props) {
   const user = props.user;
   const [eventItems, setEvents] = useState([]);
@@ -35,16 +41,13 @@ export default function Dashboard(props) {
   };
 
   useEffect(() => {
-    // Load events.
-    const eventsUrl = '/events';
-    fetch(eventsUrl)
-      .then(response => response.json())
-      .then(data => {
-        if (data != null)
-          setEvents(data);
-        else
-          setEvents([]);
-      }); 
+    loadEvents()
+    .then(data => {
+      if (data != null)
+        setEvents(data);
+      else
+        setEvents([]);
+    }); 
   }, []);
 
   return (

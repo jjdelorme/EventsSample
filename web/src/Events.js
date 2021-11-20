@@ -9,6 +9,15 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Title from './Title';
 import Error from './Error';
 
+function deleteEventRequest(user, id) {
+  const requestOptions = {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${user.authToken}` },
+  };
+    
+  return fetch('/events/' + id, requestOptions);
+}
+
 export default function Events(props) {
   const [error, setError] = useState(null);
   const events = props.events;
@@ -23,13 +32,9 @@ export default function Events(props) {
       setError('Must be logged in to delete event.');
       return;
     }
-
-    const requestOptions = {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${user.authToken}` },
-    };
-      
-    fetch('/events/' + id, requestOptions).then((response) => {
+    
+    deleteEventRequest(user, id)
+    .then((response) => {
       if (response.ok) {
         if (onDeleted != null)
           onDeleted(id);
