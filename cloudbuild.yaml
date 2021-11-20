@@ -5,7 +5,7 @@ steps:
   args: 
     - '-c'
     - |
-        gcloud run deploy \
+        gcloud beta run deploy \
         --region us-central1 \
         --platform managed \
         --allow-unauthenticated \

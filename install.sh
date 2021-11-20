@@ -92,6 +92,6 @@ echo 'Storing RSA key pair for JWT token signing in secret manager...'
 
 gcloud secrets create JwtPrivateKey --data-file=$PRIVATE_KEY
 
-gcloud secrets create JwtPubilcKey --data-file=$PUBLIC_KEY
+gcloud secrets create JwtPublicKey --data-file=$PUBLIC_KEY
 
 echo 'DONE'
