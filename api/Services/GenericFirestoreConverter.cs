@@ -96,7 +96,7 @@ namespace EventsSample
         {  
             if (_properties?.Count() > 0)
             {
-                return _properties.Where(p => p.Name == name).First();
+                return _properties.Where(p => p.Name == name).FirstOrDefault();
             }
             else
             {
