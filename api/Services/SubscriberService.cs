@@ -6,6 +6,14 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace EventsSample
 {
+    /// <summary>
+    /// Responsible for subscribing to a pub/sub topic and notifying the 
+    /// signalR service when a message is sent to the topic.
+    /// <summary>
+    /// <remarks>
+    /// The primary purpose of this class is to demonstrate subscribing to
+    /// a Goolge pub/sub topic and acting on messages. 
+    /// </remarks>
     public class SubscriberService : IHostedService
     {
         private ILogger<SubscriberService> _log;

@@ -3,6 +3,14 @@ using Google.Cloud.PubSub.V1;
 
 namespace EventsSample
 {
+    /// <summary>
+    /// Responsible for publishing an <see ref="EventsSample.Event"/> as a message
+    /// to a pub/sub topic.
+    /// <summary>
+    /// <remarks>
+    /// The primary purpose of this class is to demonstrate publishing a message to
+    /// a Goolge pub/sub topic. 
+    /// </remarks>    
     public class PublisherService
     {
         private ILogger<PublisherService> _log;

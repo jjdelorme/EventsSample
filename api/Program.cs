@@ -24,13 +24,13 @@ builder.Services.AddGoogleLoginJwt();
 var app = builder.Build();
 
 app.MapControllers();
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
+// signalR endpoint
 app.UseEndpoints(endpoints =>
     endpoints.MapHub<NotifyHub>("/notifyhub")
 );
