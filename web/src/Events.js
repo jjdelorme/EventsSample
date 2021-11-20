@@ -8,15 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Title from './Title';
 import Error from './Error';
-
-function deleteEventRequest(user, id) {
-  const requestOptions = {
-    method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${user.authToken}` },
-  };
-    
-  return fetch('/events/' + id, requestOptions);
-}
+import { deleteEventRequest } from './eventService';
 
 export default function Events(props) {
   const [error, setError] = useState(null);

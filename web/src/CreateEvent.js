@@ -8,27 +8,8 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import DatePicker from '@mui/lab/DatePicker';
-import {v1 as uuid} from 'uuid'; 
 import Error from './Error';
-
-function createEventRequest(user, data) {
-  const requestOptions = {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json',
-               'Authorization': 'Bearer ' + user.authToken 
-    },
-    body: JSON.stringify(
-      { 
-        id: uuid(),
-        type: data.get('eventType'),
-        date: data.get('eventDate'),
-        product: data.get('product'),
-        description: data.get('description')
-      })
-  };
-  
-  return fetch('/events', requestOptions);
-}
+import { createEventRequest } from './eventService';
 
 export default function CreateEvent(props) {
   const [eventDate, setEventDate] = React.useState(new Date());

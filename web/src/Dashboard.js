@@ -8,6 +8,7 @@ import Paper from '@mui/material/Paper';
 import Events from './Events';
 import CreateEvent from './CreateEvent';
 import NewEventNotification from './NewEventNotification';
+import { loadEvents } from './eventService';
 
 function Version(props) {
   return (
@@ -15,12 +16,6 @@ function Version(props) {
       {'Version ' + process.env.REACT_APP_VERSION} - {process.env.NODE_ENV}
     </Typography>
   );
-}
-
-async function loadEvents() {
-  const eventsUrl = '/events';
-  const response = await fetch(eventsUrl);
-  return response.json();
 }
 
 export default function Dashboard(props) {
