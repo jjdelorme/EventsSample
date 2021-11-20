@@ -3,13 +3,42 @@
 //
 import {v1 as uuid} from 'uuid'; 
 
-function getHeaders(user, contentType) {
+function getHeaders(authToken, contentType) {
   const headers = new Headers();  
-  headers.append('Authorization', 'Bearer ' + user.authToken);
+  headers.append('Authorization', 'Bearer ' + authToken);
   if (contentType)
     headers.append('Content-Type', 'application/json');
 
   return headers;
+}
+
+export async function getGoogleClientId() {
+  const response = await fetch("/user/clientid");
+  const text = await response.text();
+  return text;
+}
+
+function authenticateRequest(token) {
+  const authUrl = '/user/authenticate';
+  const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(
+      { 
+          idToken: token
+      })
+  };
+  
+  return fetch(authUrl, requestOptions);
+}
+
+export async function authenticate(token) {
+  const response = await authenticateRequest(token);
+  if (response.ok) {
+      return await response.json();
+  } else {
+      throw new Error("Unable to login.");
+  }
 }
 
 export async function loadEvents() {
@@ -22,7 +51,7 @@ export async function loadEvents() {
 export function createEventRequest(user, data) {
   const requestOptions = {
     method: 'POST',
-    headers: getHeaders(user, 'application/json'),
+    headers: getHeaders(user.authToken, 'application/json'),
     body: JSON.stringify(
       { 
         id: uuid(),
@@ -39,8 +68,21 @@ export function createEventRequest(user, data) {
 export function deleteEventRequest(user, id) {
   const requestOptions = {
     method: 'DELETE',
-    headers: getHeaders(user),
+    headers: getHeaders(user.authToken),
   };
       
   return fetch('/events/' + id, requestOptions);
+}
+
+export async function createUser(email, authToken) {
+  const requestOptions = {
+    method: 'POST',
+    headers: getHeaders(authToken, 'application/json'),
+    body: JSON.stringify(
+      { 
+        email: email
+      })
+  };  
+  
+  return fetch('/user/create', requestOptions);
 }

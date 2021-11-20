@@ -59,7 +59,7 @@ export default function Dashboard(props) {
       }}
     >
       <Toolbar />
-      {user && <CreateEvent user={user} />}
+      <CreateEvent user={user} />
       <NewEventNotification onNewEvent={onNewEvent} />
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>

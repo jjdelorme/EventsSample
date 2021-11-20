@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -7,6 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import WrappedSnackbar from './WrappedSnackbar';
+import { createUser } from './eventService';
 
 function error(message) {
   return {
@@ -22,32 +23,21 @@ function success(message) {
   }
 };
 
-async function requestCreate(email, authToken) {
-  const requestOptions = {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json',
-               'Authorization': 'Bearer ' + authToken 
-    },
-    body: JSON.stringify(
-      { 
-        email: email
-      })
-  };  
-  const response = await fetch('/user/create', requestOptions);
-  return response;
-}
-
-async function saveUser(email, authToken) {
+async function addUser(email, authToken) {
   console.log('saving user', email);
 
-  const response = await requestCreate(email, authToken).catch((err) => {
+  const response = createUser(email, authToken)
+  .then((response) => {
+    if (!response.ok)
+      return error(`Server error: ${response.statusText}`);
+    else
+      return success(`Created user ${email}`);
+  })
+  .catch((err) => {
     return error(`Unexpected error ${err}`);
   });
 
-  if (!response.ok)
-    return error(`Server error: ${response.statusText}`);
-  else
-    return success(`Created user ${email}`);
+  return response;
 };
 
 export default function AddUser(props) {
@@ -55,26 +45,29 @@ export default function AddUser(props) {
   const [ snackbar, setSnackbar ] = useState(null);
   const [ input, setInput ] = useState({});
 
-  const handleInputChange = (e) => setInput({
+  const onInputChange = (e) => setInput({
     ...input,
     [e.currentTarget.name]: e.currentTarget.value
   })
-  
-  const onAdd = () => saveUser(input.email, user.authToken).then((result) => {
-      console.log('onAdd', result);
+
+  const cbSnackbarClose = useCallback(() => {
+    setSnackbar(null);
+  }, []);
+
+  const cbAddUser = useCallback(() => {
+    addUser(input.email, user.authToken)
+    .then((result) => {
+      console.log('addUser result', result);
       setSnackbar(result);
       onClose();
-  });
+    });
+  }, [input, user, onClose]); 
 
-  const handleSnackbarClose = () => {
-    setSnackbar(null);
-  };
-  
   return (
     <div>
       <WrappedSnackbar open={snackbar != null} 
         {...snackbar} 
-        onClose={handleSnackbarClose} />
+        onClose={cbSnackbarClose} />
       <Dialog open={open} onClose={onClose}>
         <DialogTitle>Add User</DialogTitle>
         <DialogContent>
@@ -90,12 +83,12 @@ export default function AddUser(props) {
             type="email"
             fullWidth
             variant="standard"
-            onChange={handleInputChange}
+            onChange={onInputChange}
           />
         </DialogContent>
         <DialogActions>
           <Button variant="outlined" onClick={onClose}>Cancel</Button>
-          <Button variant="contained" onClick={onAdd}>Add</Button>
+          <Button variant="contained" onClick={cbAddUser}>Add</Button>
         </DialogActions>
       </Dialog>
     </div>

@@ -16,6 +16,10 @@ export default function CreateEvent(props) {
   const [error, setError] = useState(null);
   const user = props.user;
 
+  // Only authenticated users
+  if (!user)
+    return null;
+
   const handleErrorClose = () => {
     setError(null);
   }

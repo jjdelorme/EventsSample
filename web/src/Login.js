@@ -3,34 +3,7 @@ import Button from '@mui/material/Button';
 import { Avatar } from '@mui/material';
 import { GoogleLogin, GoogleLogout } from 'react-google-login';
 import Error from './Error';
-
-async function getGoogleClientId() {
-    console.log('GetGoogleClientId');
-    const response = await fetch("/user/clientid");
-    const text = await response.text();
-    return text;
-}
-
-async function authenticate(token) {
-    // Authenticate against our API
-    const authUrl = '/user/authenticate';
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(
-        { 
-            idToken: token
-        })
-    };
-    
-    const response = await fetch(authUrl, requestOptions);
-
-    if (response.ok) {
-        return await response.json();
-    } else {
-        throw new Error("Unable to login.");
-    }
-}
+import { getGoogleClientId, authenticate } from './eventService';
 
 export default function Login(props) {
     const [clientId, setClientId] = useState(null);
