@@ -1,8 +1,13 @@
 # Build the API
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS api-build
+ARG COMMIT_SHA
+ENV SUFFIX=$COMMIT_SHA
 WORKDIR /src
 COPY /api .
-RUN dotnet publish -r linux-x64 --self-contained true -p:PublishSingleFile=true -c Release -o /publish
+RUN dotnet publish \
+    --version-suffix $SUFFIX \
+    -r linux-x64 --self-contained true -p:PublishSingleFile=true \
+    -c Release -o /publish
 
 # Build the static web site
 FROM node:lts AS web-build
