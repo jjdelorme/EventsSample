@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
@@ -45,9 +45,9 @@ function App(props) {
       setAddUserOpen(false);
   }
 
-  const cbSetAlerts = () => {
+  const cbSetAlerts = useCallback(() => {
     setAlerts(count => count ? count + 1 : 1);
-  }
+  }, []);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>

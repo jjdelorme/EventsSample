@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
@@ -15,10 +15,10 @@ export default function Dashboard(props) {
   const [eventItems, setEvents] = useState([]);
   const setAlerts = props.setAlerts;
 
-  const onNewEvent = (e) => {
+  const onNewEvent = useCallback((e) => {
     setEvents(events => [...events, e]);
     setAlerts();
-  };
+  }, [setAlerts]);
 
   const onDeletedEvent = (id) => {
     setEvents(events => {

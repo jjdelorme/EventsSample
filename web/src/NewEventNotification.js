@@ -4,43 +4,55 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { HubConnectionBuilder, HubConnectionState } from "@microsoft/signalr";  
 
-export default function NewEventNotification(props) {
+function createHub() {
+  console.log('Creating hub...');
   const hubUrl = '/notifyhub'
-  const [open, setOpen] = useState(false);
-  const [message, setMessage] = useState('');
-  const [hub] = useState(new HubConnectionBuilder()
+  const hub = new HubConnectionBuilder()
     .withUrl(hubUrl)
     .withAutomaticReconnect()
-    .build());
+    .build()
+
+  if (hub.state === HubConnectionState.Disconnected) {
+    hub.start()
+      .then(() => console.log('Connection started.'))
+      .catch(err => console.log('Connection error', err));
+  }
+
+  return hub;
+}
+
+export default function NewEventNotification(props) {
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState('');
   const onNewEvent = props.onNewEvent;
 
   useEffect(() => {
-    if (hub.state === HubConnectionState.Disconnected) {
-      hub.start()
-          .then(() => console.log('Connection started.'))
-          .catch(err => console.log('Connection error', err));
+    const hub = createHub();
+    
+    const onNewMessage = (data) => {
+      console.log('newEventMessage', data);
+      const eventItem = JSON.parse(data);
+  
+      if (eventItem.id != null) {
+          setMessage(eventItem.type);
+          setOpen(true);
+          onNewEvent(eventItem);
+      }
+    };    
 
-      hub.on('newEventMessage', (data) => {
-          console.log('newEventMessage', data);
-          const eventItem = JSON.parse(data);
-          if (eventItem.id != null) {
-              setMessage(eventItem.type);
-              setOpen(true);
-              onNewEvent(eventItem);
-          }
-      });
-    }
-  }, [hub, onNewEvent]); // This tells useEffect to run only if these params change
+    hub.on('newEventMessage', (data) => {
+      onNewMessage(data);
+    });
+  }, [onNewEvent]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
-
     setOpen(false);
   };
 
-  const action = (
+  const actionButton = (
     <React.Fragment>
       <IconButton
         size="small"
@@ -57,10 +69,10 @@ export default function NewEventNotification(props) {
     <div>
       <Snackbar
         open={open}
-        autoHideDuration={30000}
+        autoHideDuration={6000}
         onClose={handleClose}
         message={"New " + message + " event"}
-        action={action}
+        action={actionButton}
       />
     </div>
   );
