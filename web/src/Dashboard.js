@@ -1,22 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Events from './Events';
 import CreateEvent from './CreateEvent';
 import NewEventNotification from './NewEventNotification';
+import Version from './Version';
 import { loadEvents } from './eventService';
-
-function Version(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Version ' + process.env.REACT_APP_VERSION} - {process.env.NODE_ENV}
-    </Typography>
-  );
-}
 
 export default function Dashboard(props) {
   const user = props.user;

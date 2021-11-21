@@ -18,6 +18,17 @@ export async function getGoogleClientId() {
   return text;
 }
 
+export async function getVersion() {
+  const response = await fetch("/version");
+  if (!response.ok) {
+    return "";
+  }
+  else {
+    const json = response.json();
+    return json;
+  }
+}
+
 function authenticateRequest(token) {
   const authUrl = '/user/authenticate';
   const requestOptions = {
