@@ -25,25 +25,12 @@ namespace EventsSample
             return value;
         }
 
-        private static async Task SetProjectIdAsync(IConfiguration config)
-        {
-            const string ProjectIdPath = "/computeMetadata/v1/project/project-id";
-            string projectId = await GetMetadataAsync(ProjectIdPath);
-
-            if (projectId != null)
-            {
-                config["ProjectId"] = projectId;
-                Console.WriteLine($"Metadata project-id: {config["ProjectId"]}");
-            }
-        }
-
-        private static async Task SetComputeInstanceIdAsync(IConfiguration config)
+        private static async Task<string> GetComputeInstanceIdAsync()
         {
             const string InstanceIdPath = "/computeMetadata/v1/instance/id";
             string instanceId = await GetMetadataAsync(InstanceIdPath);
 
-            if (instanceId != null)
-                config["InstanceId"] = instanceId;
+            return instanceId;
         }
         
         public static async Task SetConfigAsync(IConfiguration config)
@@ -53,7 +40,7 @@ namespace EventsSample
             if (platform.Type != PlatformType.Unknown)
             {
                 config["ProjectId"] = platform.ProjectId;
-                await SetComputeInstanceIdAsync(config);
+                config["InstanceId"] = await GetComputeInstanceIdAsync();
             }
         }
     }

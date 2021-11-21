@@ -14,15 +14,19 @@ export default function Version(props) {
     }, []); 
 
     return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            <Divider>Build</Divider>
+        <React.Fragment>
             <br />
-            <span>
+            <Divider>
+                <Typography variant="overline" color="text.secondary" align="center" {...props}>
+                    Build
+                </Typography>
+            </Divider>
+            <Typography variant="caption" color="text.secondary" align="center" {...props}>
                 Client Version: {clientVersion} <br/>
                 Server Version: {version.version} <br/>
                 GCP Project: {version.projectId} <br />
                 {version.computeInstanceId}
-            </span>
-        </Typography>
+            </Typography>
+        </React.Fragment>
     );
 }
