@@ -1,6 +1,6 @@
 # Build the API
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS api-build
-ARG COMMIT_SHA
+ARG COMMIT_SHA=0
 ENV SUFFIX=$COMMIT_SHA
 WORKDIR /src
 COPY /api .
