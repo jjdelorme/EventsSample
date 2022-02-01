@@ -22,7 +22,7 @@ namespace EventsSample
             _version = new VerisonInfo
             (
                 ProjectId: config["ProjectId"],
-                ComputeInstanceId: config["InstanceId"],
+                ComputeInstanceId: GetShortInstanceId(config["InstanceId"]),
                 Version: GetVersion()
             );
         }
@@ -47,5 +47,10 @@ namespace EventsSample
                 return "";
             }
         }
+        
+        private string GetShortInstanceId(string instanceId)
+        {
+            return String.Format("{0:X}", instanceId.GetHashCode());
+        }        
     }
 }
