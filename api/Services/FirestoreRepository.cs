@@ -5,18 +5,15 @@ namespace EventsSample
     public class FirestoreRepository : IRepository
     {
         private readonly ILogger<FirestoreRepository> _log;
-        private readonly PublisherService _publisher;
         private readonly FirestoreDb _firestore;
         private readonly string _eventsCollection;
         private readonly string _usersCollection;
 
-        public FirestoreRepository(IConfiguration config, ILogger<FirestoreRepository> log,
-            PublisherService publisher)
+        public FirestoreRepository(IConfiguration config, ILogger<FirestoreRepository> log)
         {
             _eventsCollection = config.GetSection("MongoDb")["EventsCollectionName"];
             _usersCollection = config.GetSection("MongoDb")["UsersCollectionName"];
             _log = log;
-            _publisher = publisher;
 
             _firestore = new FirestoreDbBuilder
             {
@@ -34,9 +31,6 @@ namespace EventsSample
             await _firestore.Collection(_eventsCollection)
                 .Document(eventItem.Id)
                 .SetAsync(eventItem);
-
-            // Consider refactoring this into an abstract base class as it's shared by all repositories?
-            await _publisher.PublishAsync(eventItem);
 
             return eventItem;
         }

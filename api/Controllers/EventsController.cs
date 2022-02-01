@@ -8,12 +8,15 @@ namespace EventsSample
     {
         private readonly ILogger<EventsController> _log;
         private readonly IRepository _repository;
+        private readonly PublisherService _publisher;
 
         public EventsController(ILogger<EventsController> log, 
-            IRepository respository)
+            IRepository respository,
+            PublisherService publisher)
         {
             _log = log;
             _repository = respository;
+            _publisher = publisher;
         }
 
         [HttpGet]
@@ -38,6 +41,9 @@ namespace EventsSample
             if (eventItem != null)
             {
                 await _repository.CreateEventAsync(eventItem);
+
+                await _publisher.PublishAsync(eventItem);
+
                 await http.Response.WriteAsJsonAsync(eventItem);    
             }
             else
