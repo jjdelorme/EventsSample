@@ -87,8 +87,7 @@ public class FirestoreRepositoryTests
         ).Object;
         
         IRepository repository = new FirestoreRepository(config, 
-            new Mock<ILogger<FirestoreRepository>>().Object, 
-            publisher);
+            new Mock<ILogger<FirestoreRepository>>().Object);
 
         return repository;        
     }    
