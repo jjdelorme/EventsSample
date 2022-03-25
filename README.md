@@ -38,17 +38,18 @@ The install script in this repository will enable the approprate service apis, c
 The script also assigns the appropriate permissions for the built-in Google Cloud Build service account so that it can demonstrate using Google Cloud Build to automatically build and deploy the application.
 
 1. Clone the repository
-
-1. Execute the following commands
 ```bash
-# ... After Cloning into 'EventsSample'...
+git clone https://github.com/jjdelorme/EventsSample --depth=1
+```
+2. Execute the following commands
+```bash
 cd ./EventsSample
 
 # Enables required services & permissions in your project.
 ./install.sh
 
 # Builds and deploys to cloud run
-gcloud builds submit --timeout=15m
+gcloud builds submit
 ```
 ## Next steps
 * [Read on](./assets/README-dev.md) to dive into the code, build, test and deploy locally.

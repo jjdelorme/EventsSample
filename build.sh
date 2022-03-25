@@ -1,4 +1,9 @@
 #!/bin/bash
+###############################################################################
+#
+# Use this to build locally and do a canary deploy instead of Cloud Build.
+#
+###############################################################################
 set -e
 
 PROJECT_ID=$(gcloud config list --format 'value(core.project)')
@@ -19,11 +24,9 @@ fi
 
 IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/eventssample/eventssample:$SUFFIX"
 
-pushd $PWD
-cd ../
 docker build --build-arg COMMIT_SHA=${SUFFIX} -t $IMAGE .
 docker push $IMAGE
-popd
+
 gcloud run deploy \
         --image $IMAGE \
         --tag test \
