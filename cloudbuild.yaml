@@ -4,4 +4,4 @@ steps:
   entrypoint: "./deploy.sh"
   env:
     - 'PROJECT_ID=${PROJECT_ID}'
-  timeout: 15m
+  timeout: 900s
