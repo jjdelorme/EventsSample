@@ -31,25 +31,32 @@ The client application _can be configured_ to use `Sign in with Google` to authe
 
 ## Deploying to Google Cloud
 
-It is recommended that you create a new Google Cloud project.  You have a choice of working locally or in the [Google Cloud Shell](https://console.cloud.google.com/home/dashboard?cloudshell=true). If you want to edit the code, build and test it is recommended that you do that locally.
+You have a choice of working locally or in the [Google Cloud Shell](https://console.cloud.google.com/home/dashboard?cloudshell=true) & Editor (*.NET 6 is already installed by default in the Google Cloud Shell!*). It is recommended that you create a *new* Google Cloud project for this demo.  When you are done with the sample, you can simply run `gcloud projects delete YOURPROJECT`.  
 
-The install script in this repository will enable the approprate service apis, create a separate [service account](https://cloud.google.com/iam/docs/service-accounts) to run the application and assign necessary permissions within your Google Cloud project.  
-
-The script also assigns the appropriate permissions for the built-in Google Cloud Build service account so that it can demonstrate using Google Cloud Build to automatically build and deploy the application.
+The install script in this repository will enable the approprate service apis, create a separate [service account](https://cloud.google.com/iam/docs/service-accounts) to run the application and assign necessary permissions within your Google Cloud project.  The script also assigns the appropriate permissions for the built-in Google Cloud Build service account so that it can demonstrate using Google Cloud Build to automatically build and deploy the application.
 
 1. Clone the repository
-
-1. Execute the following commands
 ```bash
-# ... After Cloning into 'EventsSample'...
+git clone https://github.com/jjdelorme/EventsSample --depth=1
+```
+
+2. Either create a project in the Google Cloud Console, or run this script to create a project associated with a billling acount in the format: `0FFFFF-EEEEEE-333333`.  To find your billing account run `gcloud alpha billing accounts list`.
+```bash
+# OPTIONAL
+./create-project.sh YOUR-PROJECT-NAME 0FFFFF-EEEEEE-333333
+```
+
+3. Execute the following commands
+```bash
 cd ./EventsSample
 
 # Enables required services & permissions in your project.
 ./install.sh
 
 # Builds and deploys to cloud run
-gcloud builds submit --timeout=15m
+gcloud builds submit
 ```
+
 ## Next steps
 * [Read on](./assets/README-dev.md) to dive into the code, build, test and deploy locally.
 * [README-auth.md](./assets/README-auth.md) descrbies how end user and api authentication and authorization are implemented.

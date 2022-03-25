@@ -7,14 +7,10 @@ namespace EventsSample
         private readonly IMongoCollection<Event> _events;
         private readonly IMongoCollection<User> _users;
         private readonly ILogger<MongoDbRepository> _log;
-        private readonly PublisherService _publisher;
 
-        public MongoDbRepository(IConfiguration config,
-            ILogger<MongoDbRepository> log, 
-            PublisherService publisher)
+        public MongoDbRepository(IConfiguration config, ILogger<MongoDbRepository> log)
         {
             _log = log;
-            _publisher = publisher;
 
             var mongoConfig = config.GetSection(MongoDbSettings.Section)
                 .Get<MongoDbSettings>();
@@ -44,8 +40,6 @@ namespace EventsSample
             
             _log.LogInformation($"Created event id:{eventItem.Id}");
             
-            await _publisher.PublishAsync(eventItem);
-
             return eventItem;
         }
 
