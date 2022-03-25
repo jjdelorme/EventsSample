@@ -105,6 +105,14 @@ echo 'Creating app engine instance for Firestore...'
 gcloud app create --region=$APPENGINE_REGION
 
 echo 'Creating Firestore database...'
-gcloud alpha firestore databases create --region=$APPENGINE_REGION
+
+# Try 5 times, it could take a while for api enablement to propogate
+n=0
+until [ "$n" -ge 5 ]
+do
+   gcloud alpha firestore databases create --region=$APPENGINE_REGION && break  
+   n=$((n+1)) 
+   sleep 30
+done
 
 echo 'DONE'
