@@ -25,7 +25,7 @@ export default function Version(props) {
                 Client Version: {clientVersion} <br/>
                 Server Version: {version.version} <br/>
                 GCP Project: {version.projectId} <br />
-                {version.computeInstanceId}
+                Compute Instance: {version.computeInstanceId}
             </Typography>
         </React.Fragment>
     );
