@@ -50,6 +50,9 @@ namespace EventsSample
         
         private string GetShortInstanceId(string instanceId)
         {
+            if (string.IsNullOrWhiteSpace(instanceId))
+                return "";
+                
             return String.Format("{0:X}", instanceId.GetHashCode());
         }        
     }
