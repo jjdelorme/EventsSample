@@ -3,8 +3,14 @@
 #
 # Use this to build locally and do a canary deploy instead of Cloud Build.
 #
+# Optionally provide the argument `local` to avoid pushing to Cloud Run.
+#
+# ./build.sh local
+#
 ###############################################################################
 set -e
+
+LOCAL=$1
 
 PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 REGION=$(gcloud config list --format 'value(run.region)')
@@ -25,6 +31,12 @@ fi
 IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/eventssample/eventssample:$SUFFIX"
 
 docker build --build-arg COMMIT_SHA=${SUFFIX} -t $IMAGE .
+
+# Only build if local dev specified.
+if [ "$LOCAL" = "local" ]; then
+  exit
+fi
+
 docker push $IMAGE
 
 gcloud run deploy \
