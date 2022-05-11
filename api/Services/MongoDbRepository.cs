@@ -36,7 +36,7 @@ namespace EventsSample
 
         public async Task<Event> CreateEventAsync(Event eventItem)
         {
-            _events.InsertOne(eventItem);
+            await _events.InsertOneAsync(eventItem);
             
             _log.LogInformation($"Created event id:{eventItem.Id}");
             
