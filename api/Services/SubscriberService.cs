@@ -24,7 +24,6 @@ namespace EventsSample
         private string _subscriptionId;
         private SubscriptionName _subscriptionName;
         private SubscriberServiceApiClient _subscriberApi;
-        private SubscriberClient _subscriber;
         private Task _processorTask;
 
         public SubscriberService(ILogger<SubscriberService> log, 
@@ -51,15 +50,16 @@ namespace EventsSample
         /// Automatically called by ASP.NET on startup.  Creates a subscription to
         /// the configured PubSub topic and listens in "Pull" mode to the subscription.
         /// </summary>
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             TopicName topic = GetTopic();
             
             CreateSubscription(topic);
-            
-            // _subscriber = await SubscriberClient.CreateAsync(_subscriptionName);
 
-            // _processorTask = _subscriber.StartAsync(ProcessMessageAsync);
+            // Kick off a worker thread to continually pull messages.
+            _processorTask = Task.Run( () => PullMessages(cancellationToken) );
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -67,12 +67,7 @@ namespace EventsSample
         /// </summary>
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            if (_subscriber != null)
-            {
-                await _subscriber.StopAsync(CancellationToken.None);
-            }
-            
-            DeleteSubscription();
+            await DeleteSubscriptionAsync(cancellationToken);
         }
 
         /// <summary>
@@ -102,10 +97,14 @@ namespace EventsSample
         /// Deletes the subscription.  This subscription is intended to only exist
         /// while this instance of the service is running.
         /// </summary>
-        private void DeleteSubscription()
+        private async Task DeleteSubscriptionAsync(CancellationToken cancellationToken)
         {
-            _subscriberApi.DeleteSubscription(_subscriptionName);      
-            _log.LogInformation($"Deleted subscription: {_subscriptionId}");      
+            if (_subscriberApi != null)
+            {
+                await _subscriberApi.DeleteSubscriptionAsync(_subscriptionName, cancellationToken);
+                                 
+                _log.LogInformation($"Deleted subscription: {_subscriptionId}");      
+            }
         }
 
         /// <summary>
@@ -136,6 +135,47 @@ namespace EventsSample
             }
 
             return topicName;
+        }
+
+        private async Task PullMessages(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                PullRequest request = new PullRequest
+                {
+                    SubscriptionAsSubscriptionName = _subscriptionName,
+                    MaxMessages = 1
+                };                
+                PubsubMessage message = null;
+                string ackId = null;
+                
+                try 
+                {
+                    var response = await _subscriberApi.PullAsync(request, cancellationToken);
+                    var received = response.ReceivedMessages.FirstOrDefault(); 
+                    message = received?.Message;
+                    ackId = received?.AckId;
+                }
+                catch (Grpc.Core.RpcException e) 
+                {
+                    _log.LogWarning("{0} occurred while pulling message.", e.Status.Detail);
+                }
+
+                if (message != null)
+                {
+                    var reply = await ProcessMessageAsync(message, cancellationToken);
+                    
+                    if (reply == SubscriberClient.Reply.Ack)
+                    {
+                        _log.LogDebug("Acknowledging {0}", ackId);
+
+                        await _subscriberApi.AcknowledgeAsync( _subscriptionName, new[] { ackId }, 
+                            cancellationToken);
+
+                        _log.LogDebug("Acknowledged message {0}", message.MessageId);
+                    }
+                }
+            }
         }
 
         /// <summary>
