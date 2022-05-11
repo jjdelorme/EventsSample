@@ -12,8 +12,8 @@ SUFFIX=$(git rev-parse --short HEAD)
 
 IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/eventssample/eventssample:$SUFFIX"
 
-docker run -it -p 8080:8080 \
-    -v $PWD:/key \
-    -e GOOGLE_APPLICATION_CREDENTIALS=/key/key.json \
+docker run --rm -it -p 8080:8080 \
+    -v $PWD/api/keys:/app/keys \
+    -e GOOGLE_APPLICATION_CREDENTIALS=/app/keys/key.json \
     -e ProjectId=$PROJECT_ID \
     $IMAGE
