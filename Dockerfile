@@ -19,7 +19,7 @@ RUN BUILD_PATH='/wwwroot' \
     react-scripts build
 
 # Combine both into the final container
-FROM mcr.microsoft.com/dotnet/runtime:7.0-alpine AS runtime
+FROM mcr.microsoft.com/dotnet/nightly/runtime-deps:7.0-alpine AS runtime
 ENV \
     # Use the default port for Cloud Run
     ASPNETCORE_URLS=http://+:8080
