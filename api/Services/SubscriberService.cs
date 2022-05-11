@@ -3,6 +3,7 @@ using Google.Cloud.PubSub.V1;
 using Google.Api.Gax.ResourceNames;
 using Grpc.Core;
 using Microsoft.AspNetCore.SignalR;
+using Google.Api.Gax.Grpc.GrpcNetClient;
 
 namespace EventsSample
 {
@@ -22,6 +23,7 @@ namespace EventsSample
         private string _topicId;
         private string _subscriptionId;
         private SubscriptionName _subscriptionName;
+        private SubscriberServiceApiClient _subscriberApi;
         private SubscriberClient _subscriber;
         private Task _processorTask;
 
@@ -38,6 +40,11 @@ namespace EventsSample
                     "You must configure values for PubSub `TopicId`, `ProjectId`");
 
             _subscriptionId = $"{_topicId}_{Guid.NewGuid().ToString()}";
+
+            _subscriberApi = new SubscriberServiceApiClientBuilder
+            {
+                GrpcAdapter = GrpcNetClientAdapter.Default
+            }.Build();            
         }
 
         /// <summary>
@@ -51,7 +58,7 @@ namespace EventsSample
             CreateSubscription(topic);
             
             _subscriber = await SubscriberClient.CreateAsync(_subscriptionName);
-            
+
             _processorTask = _subscriber.StartAsync(ProcessMessageAsync);
         }
 
@@ -74,16 +81,14 @@ namespace EventsSample
         /// </summary>
         private void CreateSubscription(TopicName topicName)
         {
-            SubscriberServiceApiClient subscriber = SubscriberServiceApiClient.Create();
-
             _subscriptionName = SubscriptionName.FromProjectSubscription(
                 _projectId, _subscriptionId);
 
             try
             {
-                subscriber.CreateSubscription(
+                _subscriberApi.CreateSubscription(
                     _subscriptionName, topicName, pushConfig: null, ackDeadlineSeconds: 60);
-                
+
                 _log.LogInformation($"Created subscription: {_subscriptionId}");
                 
             }
@@ -99,8 +104,7 @@ namespace EventsSample
         /// </summary>
         private void DeleteSubscription()
         {
-            SubscriberServiceApiClient subscriber = SubscriberServiceApiClient.Create();
-            subscriber.DeleteSubscription(_subscriptionName);      
+            _subscriberApi.DeleteSubscription(_subscriptionName);      
             _log.LogInformation($"Deleted subscription: {_subscriptionId}");      
         }
 
@@ -111,7 +115,11 @@ namespace EventsSample
         {
             TopicName topicName = TopicName.FromProjectTopic(_projectId, _topicId);
 
-            PublisherServiceApiClient publisher = PublisherServiceApiClient.Create();
+            var publisher = new PublisherServiceApiClientBuilder
+            {
+                GrpcAdapter = GrpcNetClientAdapter.Default
+            }.Build();
+
             ProjectName projectName = ProjectName.FromProject(_projectId);
             IEnumerable<Topic> topics = publisher.ListTopics(projectName);
 
