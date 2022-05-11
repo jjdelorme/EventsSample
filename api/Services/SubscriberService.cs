@@ -57,9 +57,9 @@ namespace EventsSample
             
             CreateSubscription(topic);
             
-            _subscriber = await SubscriberClient.CreateAsync(_subscriptionName);
+            // _subscriber = await SubscriberClient.CreateAsync(_subscriptionName);
 
-            _processorTask = _subscriber.StartAsync(ProcessMessageAsync);
+            // _processorTask = _subscriber.StartAsync(ProcessMessageAsync);
         }
 
         /// <summary>
