@@ -1,12 +1,12 @@
 # Build the API
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS api-build
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS api-build
 ARG COMMIT_SHA=0
 ENV SUFFIX=$COMMIT_SHA
 WORKDIR /src
 COPY /api .
 RUN dotnet publish \
     --version-suffix $SUFFIX \
-    -r linux-x64 --self-contained true -p:PublishSingleFile=true \
+    -r linux-musl-x64 --self-contained true -p:PublishSingleFile=true \
     -c Release -o /publish
 
 # Build the static web site
@@ -19,12 +19,12 @@ RUN BUILD_PATH='/wwwroot' \
     react-scripts build
 
 # Combine both into the final container
-FROM mcr.microsoft.com/dotnet/runtime-deps:6.0 as runtime
+FROM mcr.microsoft.com/dotnet/runtime:7.0-alpine AS runtime
+ENV \
+    # Use the default port for Cloud Run
+    ASPNETCORE_URLS=http://+:8080
 WORKDIR /app
 COPY --from=api-build /publish .
 COPY --from=web-build /wwwroot ./wwwroot/
-
-# Use the default port for Cloud Run
-ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 
 ENTRYPOINT ["./EventsSample"]
