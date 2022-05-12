@@ -4,3 +4,5 @@
 **/bin
 **/obj
 **/.vscode/
+**/keys
+**/appsettings.Development.json
