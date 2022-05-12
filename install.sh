@@ -115,4 +115,17 @@ do
    sleep 30
 done
 
+#
+# Create artifact registry for storing container image.
+#
+REGION=$(gcloud config list --format 'value(run.region)')
+echo 'Creating artifact registry in ' + $REGION
+
+gcloud artifacts repositories create eventssample \
+    --repository-format=Docker \
+    --location=$REGION
+
+gcloud auth configure-docker \
+    $REGION-docker.pkg.dev
+
 echo 'DONE'

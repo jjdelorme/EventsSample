@@ -3,6 +3,7 @@ using Google.Cloud.PubSub.V1;
 using Google.Api.Gax.ResourceNames;
 using Grpc.Core;
 using Microsoft.AspNetCore.SignalR;
+using Google.Api.Gax.Grpc.GrpcNetClient;
 
 namespace EventsSample
 {
@@ -22,7 +23,7 @@ namespace EventsSample
         private string _topicId;
         private string _subscriptionId;
         private SubscriptionName _subscriptionName;
-        private SubscriberClient _subscriber;
+        private SubscriberServiceApiClient _subscriberApi;
         private Task _processorTask;
 
         public SubscriberService(ILogger<SubscriberService> log, 
@@ -38,21 +39,27 @@ namespace EventsSample
                     "You must configure values for PubSub `TopicId`, `ProjectId`");
 
             _subscriptionId = $"{_topicId}_{Guid.NewGuid().ToString()}";
+
+            _subscriberApi = new SubscriberServiceApiClientBuilder
+            {
+                GrpcAdapter = GrpcNetClientAdapter.Default
+            }.Build();            
         }
 
         /// <summary>
         /// Automatically called by ASP.NET on startup.  Creates a subscription to
         /// the configured PubSub topic and listens in "Pull" mode to the subscription.
         /// </summary>
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             TopicName topic = GetTopic();
             
             CreateSubscription(topic);
-            
-            _subscriber = await SubscriberClient.CreateAsync(_subscriptionName);
-            
-            _processorTask = _subscriber.StartAsync(ProcessMessageAsync);
+
+            // Kick off a worker thread to continually pull messages.
+            _processorTask = Task.Run( () => PullMessages(cancellationToken) );
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -60,12 +67,7 @@ namespace EventsSample
         /// </summary>
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            if (_subscriber != null)
-            {
-                await _subscriber.StopAsync(CancellationToken.None);
-            }
-            
-            DeleteSubscription();
+            await DeleteSubscriptionAsync(cancellationToken);
         }
 
         /// <summary>
@@ -74,16 +76,14 @@ namespace EventsSample
         /// </summary>
         private void CreateSubscription(TopicName topicName)
         {
-            SubscriberServiceApiClient subscriber = SubscriberServiceApiClient.Create();
-
             _subscriptionName = SubscriptionName.FromProjectSubscription(
                 _projectId, _subscriptionId);
 
             try
             {
-                subscriber.CreateSubscription(
+                _subscriberApi.CreateSubscription(
                     _subscriptionName, topicName, pushConfig: null, ackDeadlineSeconds: 60);
-                
+
                 _log.LogInformation($"Created subscription: {_subscriptionId}");
                 
             }
@@ -97,11 +97,14 @@ namespace EventsSample
         /// Deletes the subscription.  This subscription is intended to only exist
         /// while this instance of the service is running.
         /// </summary>
-        private void DeleteSubscription()
+        private async Task DeleteSubscriptionAsync(CancellationToken cancellationToken)
         {
-            SubscriberServiceApiClient subscriber = SubscriberServiceApiClient.Create();
-            subscriber.DeleteSubscription(_subscriptionName);      
-            _log.LogInformation($"Deleted subscription: {_subscriptionId}");      
+            if (_subscriberApi != null)
+            {
+                await _subscriberApi.DeleteSubscriptionAsync(_subscriptionName, cancellationToken);
+                                 
+                _log.LogInformation($"Deleted subscription: {_subscriptionId}");      
+            }
         }
 
         /// <summary>
@@ -111,7 +114,11 @@ namespace EventsSample
         {
             TopicName topicName = TopicName.FromProjectTopic(_projectId, _topicId);
 
-            PublisherServiceApiClient publisher = PublisherServiceApiClient.Create();
+            var publisher = new PublisherServiceApiClientBuilder
+            {
+                GrpcAdapter = GrpcNetClientAdapter.Default
+            }.Build();
+
             ProjectName projectName = ProjectName.FromProject(_projectId);
             IEnumerable<Topic> topics = publisher.ListTopics(projectName);
 
@@ -128,6 +135,47 @@ namespace EventsSample
             }
 
             return topicName;
+        }
+
+        private async Task PullMessages(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                PullRequest request = new PullRequest
+                {
+                    SubscriptionAsSubscriptionName = _subscriptionName,
+                    MaxMessages = 1
+                };                
+                PubsubMessage message = null;
+                string ackId = null;
+                
+                try 
+                {
+                    var response = await _subscriberApi.PullAsync(request, cancellationToken);
+                    var received = response.ReceivedMessages.FirstOrDefault(); 
+                    message = received?.Message;
+                    ackId = received?.AckId;
+                }
+                catch (Grpc.Core.RpcException e) 
+                {
+                    _log.LogWarning("{0} occurred while pulling message.", e.Status.Detail);
+                }
+
+                if (message != null)
+                {
+                    var reply = await ProcessMessageAsync(message, cancellationToken);
+                    
+                    if (reply == SubscriberClient.Reply.Ack)
+                    {
+                        _log.LogDebug("Acknowledging {0}", ackId);
+
+                        await _subscriberApi.AcknowledgeAsync( _subscriptionName, new[] { ackId }, 
+                            cancellationToken);
+
+                        _log.LogDebug("Acknowledged message {0}", message.MessageId);
+                    }
+                }
+            }
         }
 
         /// <summary>

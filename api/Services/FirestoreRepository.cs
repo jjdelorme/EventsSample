@@ -1,4 +1,5 @@
 using Google.Cloud.Firestore;
+using Google.Api.Gax.Grpc.GrpcNetClient;
 
 namespace EventsSample
 {
@@ -18,6 +19,7 @@ namespace EventsSample
             _firestore = new FirestoreDbBuilder
             {
                 ProjectId = config["ProjectId"],
+                GrpcAdapter = GrpcNetClientAdapter.Default,
                 ConverterRegistry = new ConverterRegistry
                 {
                     new GenericFirestoreConverter<Event>("Id"),

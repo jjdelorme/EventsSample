@@ -6,6 +6,10 @@
 ###############################################################################
 set -e
 
+if [ -z "$PROJECT_ID" ]; then
+    PROJECT_ID=$(gcloud config list --format 'value(core.project)')
+fi
+
 gcloud beta run deploy \
 --region us-central1 \
 --platform managed \
