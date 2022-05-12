@@ -3,13 +3,15 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <VersionPrefix>1.6.1</VersionPrefix>
-    <PublishReadyToRun>true</PublishReadyToRun>
+    <VersionPrefix>1.6.2</VersionPrefix>
+    <!-- <PublishReadyToRun>true</PublishReadyToRun> -->
     <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
     <PublishSingleFile>true</PublishSingleFile>
+     <!-- <InvariantGlobalization>true</InvariantGlobalization> -->
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Moving to newer gRPC as per issue: https://github.com/googleapis/google-cloud-dotnet/issues/7560 -->
     <PackageReference Include="Google.Api.Gax.Grpc.GrpcNetClient" Version="3.7.0" />
     <PackageReference Include="Google.Cloud.Firestore" Version="2.4.0" />
     <PackageReference Include="Google.Cloud.PubSub.V1" Version="2.7.0" />
