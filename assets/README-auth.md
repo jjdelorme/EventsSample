@@ -6,40 +6,10 @@ The application can be configured to use [Google Identity](https://developers.go
 ## Prerequisites
 1. You must first [get your Google API client ID](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid) to get an OAuth client ID which we'll call _GoogleClientId_.  
 
-1. Enable `Authentication` and add the OAuthIsAdmin client ID in `appsettings.json`
-    ```json
-    "Authentication": {
-        "Enabled": true,
-        "GoogleClientId": "your-oauth-id"
-    }
-    ```
-
 1. Set the appropriate `Authorized JavaScript origins`.  To test locally (recommended), add `http://localhost:5000` to the list of origins.  If you have already deployed to Cloud Run add your fully qualified Cloud Run origin i.e. `https://eventssample-XXXXXXXX-uc.a.run.app`.  You can get this by running:
     ```bash
     gcloud config set run/region us-central1
     gcloud run services describe eventssample --format="value(status.address.url)"
-    ```
-1. Rebuild and redeploy the application to reflect the updated configuration with `gcloud builds submit`.  
-
-1. Alternatively, you do not actually need to rebuild the application, you could just redeploy without rebuilding:
-    ```bash
-    # Replace with your GoogleClientId
-    CLIENT_ID=xxx.apps.googleusercontent.com
-
-    PROJECT_ID=`gcloud config list --format 'value(core.project)' 2>/dev/null`
-
-    IMAGE=`gcloud run services describe eventssample --format 'value(spec.template.spec.containers[0].image)' 2>/dev/null`
-
-    gcloud run deploy \
-        --platform managed \
-        --allow-unauthenticated \
-        --set-env-vars Authentication__Enabled=true \
-        --set-env-vars Authentication__GoogleClientId=$CLIENT_ID \
-        --set-env-vars ProjectId=$PROJECT_ID \
-        --set-secrets=/app/keys/public/public-key.pem=JwtPublicKey:latest,/app/keys/private/private-key.pem=JwtPrivateKey:latest \
-        --service-account="eventssample-sa@$PROJECT_ID.iam.gserviceaccount.com" \
-        --image $IMAGE \
-        eventssample
     ```
 
 ## How it works
@@ -89,3 +59,26 @@ Test easiest way to create yourself as the first user with the Admin role is to 
 ```
 
 After you modify the code, run `dotnet test` from the `./api.Tests/` directory.
+
+## Update Cloud Run
+You can either rebuild and redeploy your Cloud Run application with the new configuration, or you could just redeploy overriding the `Authentication__GoogleClientId` configuration value:
+
+    ```bash
+    # Replace with your GoogleClientId
+    CLIENT_ID=xxx.apps.googleusercontent.com
+
+    PROJECT_ID=`gcloud config list --format 'value(core.project)' 2>/dev/null`
+
+    IMAGE=`gcloud run services describe eventssample --format 'value(spec.template.spec.containers[0].image)' 2>/dev/null`
+
+    gcloud run deploy \
+        --platform managed \
+        --allow-unauthenticated \
+        --set-env-vars Authentication__Enabled=true \
+        --set-env-vars Authentication__GoogleClientId=$CLIENT_ID \
+        --set-env-vars ProjectId=$PROJECT_ID \
+        --set-secrets=/app/keys/public/public-key.pem=JwtPublicKey:latest,/app/keys/private/private-key.pem=JwtPrivateKey:latest \
+        --service-account="eventssample-sa@$PROJECT_ID.iam.gserviceaccount.com" \
+        --image $IMAGE \
+        eventssample
+    ```
