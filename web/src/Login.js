@@ -57,7 +57,8 @@ export default function Login(props) {
     const logout = () => {
         console.log('logged out')  ;
         cbSetUser(null);
-    }
+    };    
+    
 
     let login;
     if (user == null && clientId != null)
@@ -80,7 +81,11 @@ export default function Login(props) {
           <Error onErrorClose={handleErrorClose} message={error} />
         </React.Fragment>
     else 
-        login = null;
+        login = <Button onClick={logout} 
+                    disabled={false}
+                    color="inherit" 
+                    variant="text">Logout
+                </Button>;
     
     return login;
 }
