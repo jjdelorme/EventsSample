@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Button from '@mui/material/Button';
 import { Avatar } from '@mui/material';
-import { GoogleLogin, GoogleLogout } from 'react-google-login';
+import GoogleOneTapLogin from 'react-google-one-tap-login';
 import Error from './Error';
 import { getGoogleClientId, authenticate } from './eventService';
 
@@ -38,8 +38,8 @@ export default function Login(props) {
     const responseGoogle = (response) => {
         console.log('login response', response);
 
-        if (response && response.tokenId) {
-            const token = response.tokenId;
+        if (response) {
+            const token = response.id_token;
             console.log('token', token);
 
             authenticate(token).then(data => {
@@ -57,40 +57,35 @@ export default function Login(props) {
     const logout = () => {
         console.log('logged out')  ;
         cbSetUser(null);
-    }
+    };    
+    
 
     let login;
-    if (user == null)
-        login = <React.Fragment>
-          <GoogleLogin
-            clientId={clientId}
+    if (user == null && clientId != null)
+        login = 
+        <React.Fragment>
+          <GoogleOneTapLogin 
+            onError={responseGoogle} 
+            onSuccess={responseGoogle} 
+            googleAccountConfigs={
+                { client_id: clientId }
+            }
             render={renderProps => (
                 <Button onClick={renderProps.onClick} 
                     disabled={renderProps.disabled}
                     color="inherit" 
                     variant="text">Login
                 </Button>
-                )}
-            buttonText="Login"
-            onSuccess={responseGoogle}
-            onFailure={responseGoogle}
-            cookiePolicy={'single_host_origin'}
-            isSignedIn={true}
+            )}                 
           />
           <Error onErrorClose={handleErrorClose} message={error} />
         </React.Fragment>
     else 
-        login = <GoogleLogout
-                    clientId={clientId}
-                    render={renderProps => (
-                        <Button onClick={renderProps.onClick}
-                                disabled={renderProps.disabled}>
-                            <Avatar alt={user.name} src={user.picture} />
-                        </Button>
-                        )}
-                    buttonText="Logout"
-                    onLogoutSuccess={logout}
-                />
+        login = <Button onClick={logout} 
+                    disabled={false}
+                    color="inherit" 
+                    variant="text">Logout
+                </Button>;
     
     return login;
 }

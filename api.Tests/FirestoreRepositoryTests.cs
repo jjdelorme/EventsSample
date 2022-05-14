@@ -23,8 +23,9 @@ public class FirestoreRepositoryTests
             Email = "test@test.com",
             Name = "Test Tester",
             IsAdmin = true,
-            // LastLogin = DateTime.UtcNow
+            LastLogin = DateTime.UtcNow
         };
+        _repository.CreateUserAsync(_testUser).Wait();
     }
 
     [Fact]
@@ -47,6 +48,14 @@ public class FirestoreRepositoryTests
         var user = await _repository.GetUserAsync(_testUser.Email);
         Assert.NotNull(user);
         Assert.True(user.Email == _testUser.Email);
+    }
+
+    [Fact]
+    public async Task TestGetUsers()
+    {
+        var users = await _repository.GetUsersAsync();
+        Assert.NotNull(users);
+        Assert.True(users.Count() > 0);
     }
 
     [Fact]

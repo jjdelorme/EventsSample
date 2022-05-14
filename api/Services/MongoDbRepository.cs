@@ -55,6 +55,12 @@ namespace EventsSample
             var result = await _users.FindAsync<User>(e => e.Email == email);
             return result.FirstOrDefault();
         }
+
+        public async Task<IEnumerable<User>> GetUsersAsync()
+        {
+            var users = await _users.FindAsync<User>(e => true);
+            return users.ToEnumerable<User>();            
+        }
         
         public async Task CreateUserAsync(User user)
         {

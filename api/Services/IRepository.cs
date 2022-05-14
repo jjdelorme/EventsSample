@@ -7,6 +7,7 @@ namespace EventsSample
         Task<Event> CreateEventAsync(Event eventItem);
         Task DeleteEventAsync(string id);
         Task<User> GetUserAsync(string email);
+        Task<IEnumerable<User>> GetUsersAsync();
         Task CreateUserAsync(User user);
     }
 }

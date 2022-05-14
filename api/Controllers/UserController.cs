@@ -39,6 +39,13 @@ namespace EventsSample
         }
 
         [AllowAnonymous]
+        [HttpGet("/users")]
+        public async Task<IEnumerable<User>> ListUsers()
+        {
+            return await _repository.GetUsersAsync();
+        }
+
+        [AllowAnonymous]
         [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody] AuthenticateRequest data)
         {

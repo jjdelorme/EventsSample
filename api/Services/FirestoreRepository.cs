@@ -82,6 +82,19 @@ namespace EventsSample
                 return null;
         }
 
+        public async Task<IEnumerable<User>> GetUsersAsync()
+        {
+            Query query = _firestore.CollectionGroup(_usersCollection);
+            QuerySnapshot querySnapshot = await query.GetSnapshotAsync();
+
+            IEnumerable<User> users = querySnapshot.Documents
+                .Select(d => d.ConvertTo<User>());
+
+            _log.LogDebug($"Found {users.Count()} users.");
+
+            return users;
+        }
+
         public async Task CreateUserAsync(User user)
         {
             await _firestore.Collection(_usersCollection)
