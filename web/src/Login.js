@@ -68,7 +68,7 @@ export default function Login(props) {
             onError={responseGoogle} 
             onSuccess={responseGoogle} 
             googleAccountConfigs={
-                { client_id: clientId }
+                { client_id: clientId, cancel_on_tap_outside: false }
             }
             render={renderProps => (
                 <Button onClick={renderProps.onClick} 
