@@ -1,5 +1,5 @@
 # Build the API
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS api-build
+FROM mcr.microsoft.com/dotnet/nightly/sdk AS api-build
 ARG COMMIT_SHA=0
 ENV SUFFIX=$COMMIT_SHA
 WORKDIR /src
