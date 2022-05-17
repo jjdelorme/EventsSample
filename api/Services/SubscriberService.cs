@@ -158,7 +158,7 @@ namespace EventsSample
                 }
                 catch (Grpc.Core.RpcException e) 
                 {
-                    _log.LogWarning("{0} occurred while pulling message.", e.Status.Detail);
+                    _log.LogWarning("{0} occurred while pulling message.", e.Status);
                 }
 
                 if (message != null)

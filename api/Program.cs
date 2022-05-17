@@ -14,7 +14,7 @@ if (builder.Environment.IsProduction())
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<SubscriberService>();
 builder.Services.AddSingleton<PublisherService>();
-builder.Services.AddSingleton<IRepository, FirestoreRepository>();
+builder.Services.AddScoped<IRepository, FirestoreRepository>();
 
 // Controllers
 builder.Services.AddControllers();

@@ -35,8 +35,6 @@ namespace EventsSample
             {
                 GrpcAdapter = GrpcNetClientAdapter.Default
             }.Build();
-
-            // _publisher.CreateTopic(_topicName);
         }
 
         /// <summary>
