@@ -16,6 +16,6 @@ gcloud beta run deploy \
 --allow-unauthenticated \
 --set-secrets=/app/keys/public/public-key.pem=JwtPublicKey:latest,/app/keys/private/private-key.pem=JwtPrivateKey:latest \
 --service-account="eventssample-sa@$PROJECT_ID.iam.gserviceaccount.com" \
---timeout=10m \
+--timeout=20m \
 --source . \
 eventssample
