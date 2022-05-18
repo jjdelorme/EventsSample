@@ -4,6 +4,7 @@ using Google.Api.Gax.ResourceNames;
 using Grpc.Core;
 using Microsoft.AspNetCore.SignalR;
 using Google.Api.Gax.Grpc.GrpcNetClient;
+using Google.Api.Gax.Grpc;
 
 namespace EventsSample
 {
@@ -24,6 +25,7 @@ namespace EventsSample
         private string _subscriptionId;
         private SubscriptionName _subscriptionName;
         private SubscriberServiceApiClient _subscriberApi;
+        private SubscriberServiceApiClient.StreamingPullStream _subscriberStream;
         private Task _processorTask;
 
         public SubscriberService(ILogger<SubscriberService> log, 
@@ -39,11 +41,6 @@ namespace EventsSample
                     "You must configure values for PubSub `TopicId`, `ProjectId`");
 
             _subscriptionId = $"{_topicId}_{Guid.NewGuid().ToString()}";
-
-            _subscriberApi = new SubscriberServiceApiClientBuilder
-            {
-                GrpcAdapter = GrpcNetClientAdapter.Default
-            }.Build();            
         }
 
         /// <summary>
@@ -52,12 +49,14 @@ namespace EventsSample
         /// </summary>
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            _subscriberApi = CreateApi();  
+
             TopicName topic = GetTopic();
             
             CreateSubscription(topic);
 
             // Kick off a worker thread to continually pull messages.
-            _processorTask = Task.Run( () => PullMessages(cancellationToken) );
+            _processorTask = Task.Run( () => StreamingRetryPullAsync(cancellationToken) );
 
             return Task.CompletedTask;
         }
@@ -67,8 +66,27 @@ namespace EventsSample
         /// </summary>
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            await DeleteSubscriptionAsync(cancellationToken);
+            try 
+            {
+                await DeleteSubscriptionAsync(cancellationToken);
+                await _subscriberStream.TryWriteCompleteAsync();
+            }
+            catch (Exception e)
+            {
+                _log.LogWarning("Error while stopping; {0}.", e.Message);
+            }
         }
+
+        /// <summary>
+        /// Wrapper to create SubscriberServiceApiClient.
+        /// </summary>
+        private SubscriberServiceApiClient CreateApi()
+        {
+            return new SubscriberServiceApiClientBuilder
+            {
+                GrpcAdapter = GrpcNetClientAdapter.Default
+            }.Build();          
+        }        
 
         /// <summary>
         /// Creates a unique subscription for this service to listen to the topic which
@@ -137,44 +155,77 @@ namespace EventsSample
             return topicName;
         }
 
-        private async Task PullMessages(CancellationToken cancellationToken)
+        /// <summary>
+        /// Wraps the pull message to anticipate the expected `Unavailable` message and
+        /// continue to retry until canceled.  
+        /// </summary>
+        private async Task StreamingRetryPullAsync(CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                PullRequest request = new PullRequest
+                try
                 {
-                    SubscriptionAsSubscriptionName = _subscriptionName,
-                    MaxMessages = 1
-                };                
-                PubsubMessage message = null;
-                string ackId = null;
-                
-                try 
-                {
-                    var response = await _subscriberApi.PullAsync(request, cancellationToken);
-                    var received = response.ReceivedMessages.FirstOrDefault(); 
-                    message = received?.Message;
-                    ackId = received?.AckId;
-                }
-                catch (Grpc.Core.RpcException e) 
-                {
-                    _log.LogWarning("{0} occurred while pulling message.", e.Status);
-                }
+                    _subscriberStream = _subscriberApi.StreamingPull();
 
-                if (message != null)
+                    await PullMessagesAsync(cancellationToken);
+                }
+                catch (RpcException e)
                 {
-                    var reply = await ProcessMessageAsync(message, cancellationToken);
-                    
-                    if (reply == SubscriberClient.Reply.Ack)
+                    if (e.StatusCode == StatusCode.Unavailable)
                     {
-                        _log.LogDebug("Acknowledging {0}", ackId);
-
-                        await _subscriberApi.AcknowledgeAsync( _subscriptionName, new[] { ackId }, 
-                            cancellationToken);
-
-                        _log.LogDebug("Acknowledged message {0}", message.MessageId);
+                        _log.LogDebug("Unavaialble, retrying.");
+                        continue;
                     }
+                    else
+                        throw;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Pulls messages using streaming method until the stream closes.
+        /// </summary>
+        private async Task PullMessagesAsync(CancellationToken cancellationToken)
+        {
+            StreamingPullRequest request = new StreamingPullRequest
+            {
+                SubscriptionAsSubscriptionName = _subscriptionName,
+                ClientId = Guid.NewGuid().ToString(),
+                StreamAckDeadlineSeconds = 600                    
+            };    
+
+            await _subscriberStream.WriteAsync(request);
+
+            _log.LogDebug("Wrote stream request.");
+
+            await foreach (var response in _subscriberStream.GetResponseStream())
+            {
+                _log.LogDebug("Found Message");
+                var received = response.ReceivedMessages.FirstOrDefault();
+
+                if (received?.Message != null)
+                    await HandleReceivedAsync(received, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// Process and acknowledge message.
+        /// </summary>
+        private async Task HandleReceivedAsync(ReceivedMessage received, CancellationToken cancellationToken)
+        {
+            PubsubMessage message = received.Message;
+            string ackId = received.AckId;
+
+            var reply = await ProcessMessageAsync(message, cancellationToken);
+            return;
+            if (reply == SubscriberClient.Reply.Ack)
+            {
+                _log.LogDebug("Acknowledging {0}", ackId);
+
+                await _subscriberApi.AcknowledgeAsync( _subscriptionName, new[] { ackId }, 
+                    cancellationToken);
+
+                _log.LogDebug("Acknowledged message {0}", message.MessageId);
             }
         }
 
