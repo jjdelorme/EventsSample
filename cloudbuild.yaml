@@ -5,14 +5,13 @@ steps:
   args:
   - 'build'
   - '-t'
-  - 'gcr.io/${PROJECT_ID}/eventssample/eventssample:B-$COMMIT_SHA'
+  - 'gcr.io/${PROJECT_ID}/eventssample/eventssample:c-$SHORT_SHA'
   - '--build-arg'
-  - 'COMMIT_SHA=${COMMIT_SHA}'
+  - 'COMMIT_SHA=$SHORT_SHA'
   - '.'
-  timeout: 1200s
 # Push the container image to Container Registry
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/${PROJECT_ID}/eventssample/eventssample:B-$COMMIT_SHA']
+  args: ['push', 'gcr.io/${PROJECT_ID}/eventssample/eventssample:c-$SHORT_SHA']
 # Deploy container image to Cloud Run
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: gcloud
@@ -22,7 +21,7 @@ steps:
   - 'deploy'
   - 'eventssample'
   - '--image'
-  - 'gcr.io/${PROJECT_ID}/eventssample/eventssample:B-$COMMIT_SHA'
+  - 'gcr.io/${PROJECT_ID}/eventssample/eventssample:c-$SHORT_SHA'
   - '--region'
   - 'us-central1'
   - '--platform'
@@ -31,4 +30,3 @@ steps:
   - '--set-secrets=/app/keys/public/public-key.pem=JwtPublicKey:latest,/app/keys/private/private-key.pem=JwtPrivateKey:latest'
   - '--service-account=eventssample-sa@$PROJECT_ID.iam.gserviceaccount.com'
   - '--timeout=20m'
-  timeout: 1200s
