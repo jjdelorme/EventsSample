@@ -17,27 +17,26 @@ This implementation leverages [Google Identity Services](https://developers.goog
 ## How it works
 1. The client requests the `GoogleClientId` from the server using `/user/clientid` (this id is not a secret).
 
-1. client calls initCodeClient()::requestCode() with redirect to /user/authetnicate with a GET containing the `code` parameter
+1. Client calls [initCodeClient(...)](https://developers.google.com/identity/oauth2/web/guides/use-code-model#initialize_a_code_client), then [requestCode(...)](https://developers.google.com/identity/oauth2/web/guides/use-code-model#trigger_oauth_20_code_flow) with redirect to /user/authetnicate with a [GET request](https://developers.google.com/identity/oauth2/web/guides/use-code-model#authorization_endpoint) containing the `code` parameter.
 
 1. /user/authenticate 
-    a. exchanges `code` for access_token & refresh_token using https://oauth2.googleapis.com/token
-    b. stores refresh token with user (long-term persistence)
-    c. generates our signed JWT with user attributes, i.e. IsAdmin and returns this to the client
+    1. [exchanges `code` for access_token & refresh_token](https://developers.google.com/identity/protocols/oauth2/web-server#exchange-authorization-code) using https://oauth2.googleapis.com/token
+    1. stores refresh token with user (long-term persistence)
+    1. generates our signed JWT with user attributes, i.i.e. IsAdmin and returns this to the client
 
 1. client keeps our JWT in local state and uses it in all subsequent server requests with: Authorization Bearer {JWT} 
-    a. built-in ASP.NET auth & authorization with validate the JWT and also assign role based access (i.e. Admin)
 
 1. client attempts server request with expired token
-    a. gets a 401
-    b. calls /user/refresh-token to get new JWT
-    c. on success, updates the local state
-    d. retries server request
+    1. gets a 401
+    1. calls /user/refresh-token to get new JWT
+    1. on success, updates the local state
+    1. retries server request
 
 1. /user/refresh-token
-    a. ensures that there is an otherwise valid JWT that is expired
-    b. acesses user service to get persisted refresh_token
-    c. uses https://oauth2.googleapis.com/token to request a refresh_token
-    d. creates a new JWT and returns to the user
+    1. ensures that there is an otherwise valid JWT that is expired
+    1. acesses user service to get persisted refresh_token
+    1. uses https://oauth2.googleapis.com/token to request a refresh_token
+    1. creates a new JWT and returns to the user
 
 ### ASP.NET Authentication & Authorization
 The application leverages built in ASP.NET Authentication & Authorization.  You will find certain controller actions annotated as below indicating that only authenticated users who have the admin role can execute these methods.
