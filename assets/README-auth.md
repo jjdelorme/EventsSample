@@ -3,6 +3,8 @@
 ## Overview
 The application can be configured to use [Google Identity](https://developers.google.com/identity/gsi/web/guides/overview) to provide `Sign in with Google` authentication.  **By default this is not enabled**.
 
+This implementation leverages [Google Identity Services](https://developers.google.com/identity/oauth2/web/guides/overview) for user authentication, but authorization is handled by our api.  This allows us to offer granular access control with application defined roles and also decouples authentication from authorization. 
+
 ## Prerequisites
 1. You must first [get your Google API client ID](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid) to get an OAuth client ID which we'll call _GoogleClientId_.  
 
@@ -15,9 +17,27 @@ The application can be configured to use [Google Identity](https://developers.go
 ## How it works
 1. The client requests the `GoogleClientId` from the server using `/user/clientid` (this id is not a secret).
 
-1. The client uses the `react-google-login` component with `GoogleClientId` to pop-up an official Google login dialog.  Upon successful signin an `Id Token` will be returned from Google Identity.
+1. client calls initCodeClient()::requestCode() with redirect to /user/authetnicate with a GET containing the `code` parameter
 
-1. The client will exchange the `Id Token` for an `Access Token` by posting it to `/user/authenticate`. The authentication controller will verify that the Id Token is valid and issue it's own signed JWT token that will be used by all subsequent client side api calls to the server.  
+1. /user/authenticate 
+    a. exchanges `code` for access_token & refresh_token using https://oauth2.googleapis.com/token
+    b. stores refresh token with user (long-term persistence)
+    c. generates our signed JWT with user attributes, i.e. IsAdmin and returns this to the client
+
+1. client keeps our JWT in local state and uses it in all subsequent server requests with: Authorization Bearer {JWT} 
+    a. built-in ASP.NET auth & authorization with validate the JWT and also assign role based access (i.e. Admin)
+
+1. client attempts server request with expired token
+    a. gets a 401
+    b. calls /user/refresh-token to get new JWT
+    c. on success, updates the local state
+    d. retries server request
+
+1. /user/refresh-token
+    a. ensures that there is an otherwise valid JWT that is expired
+    b. acesses user service to get persisted refresh_token
+    c. uses https://oauth2.googleapis.com/token to request a refresh_token
+    d. creates a new JWT and returns to the user
 
 ### ASP.NET Authentication & Authorization
 The application leverages built in ASP.NET Authentication & Authorization.  You will find certain controller actions annotated as below indicating that only authenticated users who have the admin role can execute these methods.
