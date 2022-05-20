@@ -46,7 +46,15 @@ namespace EventsSample
         }
 
         [AllowAnonymous]
-        [HttpPost("authenticate")]
+        [HttpGet("authenticate")]
+        //public IActionResult AuthCode([FromQuery] string authuser, [FromQuery] string code)
+        public IActionResult AuthCode([FromQuery] AuthCodeResponse response)
+        {
+            return Ok();
+        }
+
+        // [AllowAnonymous]
+        // [HttpPost("authenticate")]
         public async Task<IActionResult> Authenticate([FromBody] AuthenticateRequest data)
         {
             User user = null;
