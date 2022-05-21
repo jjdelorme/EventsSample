@@ -1,84 +1,67 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Button from '@mui/material/Button';
 import { Avatar } from '@mui/material';
-import GoogleOneTapLogin from 'react-google-one-tap-login';
 import Error from './Error';
 import { getGoogleClientId, authenticate } from './eventService';
 
 export default function Login(props) {
-    const [clientId, setClientId] = useState(null);
-    const [user, setUser] = useState(null);
-    const [error, setError] = useState(null);
-    const handleErrorClose = () => setError(null);
-    const onSetUser = props.setUser;
+    const logout = () => {console.log('logged out')}
+    const [scriptLoaded, setScriptLoaded] = useState(false);
 
-    const cbSetUser = useCallback((data) => {
-        setUser(data);
-        onSetUser(data);
-    }, [onSetUser]);
-    
-    useEffect(() => {
-        getGoogleClientId()
-        .then(clientId => {
-            if (clientId === "") {
-                authenticate("")
-                .then(data => cbSetUser(data));
-            }
-            else {
-                setClientId(clientId);
-            }
+    const clientId = '942258336498-1g4ugps4kl99evv6ut8fmra5p2llt2vq.apps.googleusercontent.com';
+    const redirectUri = "http://localhost:5000/user/authenticate";
+
+    const getAuthCode = () => {
+        if (!scriptLoaded) return;
+
+        var client = window.google.accounts.oauth2.initCodeClient({
+            client_id: clientId,
+            scope: 'openid email profile',
+            ux_mode: 'redirect',
+            redirect_uri: redirectUri,
+            callback: (response) => {
+                console.log('authCode response:', response);
+            },
         });
-    }, [cbSetUser]);
 
-    // Don't show login if we don't have a client id.
-    if (clientId == null) {
-        return null;
-    }
+        console.log('getting auth'); 
+        client.requestCode();
+    };
 
-    const responseGoogle = (response) => {
-        console.log('login response', response);
+    useEffect(() => {
+        if (scriptLoaded) return undefined;
 
-        if (response) {
-            const token = response.id_token;
-            console.log('token', token);
+        const initializeGoogle = () => {
+            console.log('initializing...');
+          if (!window.google || scriptLoaded) return;
+      
+          setScriptLoaded(true);
+        };
 
-            authenticate(token).then(data => {
-                if (data != null)
-                    console.log('auth', data);
-                    cbSetUser(data);
-            })
-            .catch((err) => {
-                console.log("Login error: ", err);
-                setError("Server error, unable to login.");
-            });
-        }
-    }
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.onload = initializeGoogle;
+        script.async = true;
+        script.id = "google-client-script";
+        document.querySelector("body")?.appendChild(script);
+      
+        return () => {
+          window.google?.accounts.id.cancel();
+          document.getElementById("google-client-script")?.remove();
+        };
+      }, [scriptLoaded]);
 
-    const logout = () => {
-        console.log('logged out')  ;
-        cbSetUser(null);
-    };    
-    
 
+    var user = null;
     let login;
     if (user == null && clientId != null)
         login = 
         <React.Fragment>
-          <GoogleOneTapLogin 
-            onError={responseGoogle} 
-            onSuccess={responseGoogle} 
-            googleAccountConfigs={
-                { client_id: clientId, cancel_on_tap_outside: false }
-            }
-            render={renderProps => (
-                <Button onClick={renderProps.onClick} 
-                    disabled={renderProps.disabled}
-                    color="inherit" 
-                    variant="text">Login
-                </Button>
-            )}                 
-          />
-          <Error onErrorClose={handleErrorClose} message={error} />
+            <Button onClick={getAuthCode} 
+                disabled={false}
+                color="inherit" 
+                variant="text">Login
+            </Button>
         </React.Fragment>
     else 
         login = <Button onClick={logout} 
