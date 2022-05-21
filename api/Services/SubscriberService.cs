@@ -217,7 +217,7 @@ namespace EventsSample
             string ackId = received.AckId;
 
             var reply = await ProcessMessageAsync(message, cancellationToken);
-            return;
+
             if (reply == SubscriberClient.Reply.Ack)
             {
                 _log.LogDebug("Acknowledging {0}", ackId);
