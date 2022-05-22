@@ -101,3 +101,8 @@ You can either rebuild and redeploy your Cloud Run application with the new conf
         --image $IMAGE \
         eventssample
     ```
+
+##Other
+This was a good article: https://www.dolthub.com/blog/2022-05-04-google-signin-migration/ although I don't like the setInterval() for checking to see if the script was loaded.
+
+The problem with using the id_token Google issues is that it is short-lived.  The documentation says that it automatically updates when you navigate around.  

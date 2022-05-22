@@ -1,6 +1,6 @@
 {
-  "name": "simple-react",
-  "version": "1.4.0",
+  "name": "eventssample",
+  "version": "1.4.1",
   "private": true,
   "proxy": "http://localhost:5000/",
   "dependencies": {

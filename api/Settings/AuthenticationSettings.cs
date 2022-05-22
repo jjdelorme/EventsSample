@@ -14,5 +14,7 @@ namespace EventsSample
         public string PublicKeyPemFile { get; set; } = "";
         public string PrivateKeyPemFile { get; set; } = "";
         public string GoogleClientId { get; set; } = "";
+        public string GoogleClientSecret { get; set; } = "";
+        public string RedirectUri { get; set; } = "";
     }
 }                    

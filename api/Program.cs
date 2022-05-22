@@ -15,6 +15,7 @@ builder.Services.AddSignalR();
 builder.Services.AddHostedService<SubscriberService>();
 builder.Services.AddSingleton<PublisherService>();
 builder.Services.AddScoped<IRepository, FirestoreRepository>();
+builder.Services.AddHttpClient();
 
 // Controllers
 builder.Services.AddControllers();
@@ -35,12 +36,14 @@ var app = builder.Build();
 #if DEBUG
 app.UseCors();
 #endif
+
 app.MapControllers();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
 // signalR endpoint
 app.MapHub<NotifyHub>("/notifyhub");
 

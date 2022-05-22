@@ -9,7 +9,26 @@ export default function Login(props) {
     const [scriptLoaded, setScriptLoaded] = useState(false);
 
     const clientId = '942258336498-1g4ugps4kl99evv6ut8fmra5p2llt2vq.apps.googleusercontent.com';
-    const redirectUri = "http://localhost:5000/user/authenticate";
+    // const redirectUri = "http://localhost:5000/user/authenticate";
+
+    const handleAuthCodeResponse = (response) => {
+        console.log('authcode response: ', response);
+
+        if (response) {
+            const authCode = response.code;
+            console.log('code', authCode);
+
+            authenticate(authCode).then(data => {
+                if (data != null)
+                    console.log('auth', data);
+                    cbSetUser(data);
+            })
+            .catch((err) => {
+                console.log("Login error: ", err);
+                setError("Server error, unable to login.");
+            });
+        }        
+    }
 
     const getAuthCode = () => {
         if (!scriptLoaded) return;
@@ -17,11 +36,8 @@ export default function Login(props) {
         var client = window.google.accounts.oauth2.initCodeClient({
             client_id: clientId,
             scope: 'openid email profile',
-            ux_mode: 'redirect',
-            redirect_uri: redirectUri,
-            callback: (response) => {
-                console.log('authCode response:', response);
-            },
+            ux_mode: 'popup',
+            callback: handleAuthCodeResponse
         });
 
         console.log('getting auth'); 

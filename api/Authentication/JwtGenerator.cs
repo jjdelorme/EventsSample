@@ -29,7 +29,7 @@ namespace EventsSample.Authentication
                 Audience = _audience,
                 Issuer = _issuer,
                 Subject = GetClaims(user),
-                Expires = DateTime.UtcNow.AddMinutes(60),
+                Expires = DateTime.UtcNow.AddMinutes(5),
                 SigningCredentials = new SigningCredentials(_key, SecurityAlgorithms.RsaSha256)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

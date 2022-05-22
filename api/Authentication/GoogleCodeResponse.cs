@@ -9,7 +9,7 @@ namespace EventsSample.Authentication
     scope	Space separated list of one or more OAuth2 scopes to be authorized
     state	CRSF state variable
     */   
-    public class AuthCodeResponse
+    public class GoogleCodeResponse
     {
         public string authuser { get; set; }
         public string code { get; set; }
