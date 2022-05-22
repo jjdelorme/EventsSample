@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Button from '@mui/material/Button';
-import { Avatar } from '@mui/material';
 import Error from './Error';
 import { getGoogleClientId, authenticate } from './eventService';
 
 export default function Login(props) {
     const [scriptLoaded, setScriptLoaded] = useState(false);
-    const [clientId, setClientId] = useState(null);
+    const [googleClientId, setClientId] = useState(null);
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
+    const handleErrorClose = () => setError(null);
     const onSetUser = props.setUser;
 
     const cbSetUser = useCallback((data) => {
@@ -16,6 +16,7 @@ export default function Login(props) {
         onSetUser(data);
     }, [onSetUser]);
 
+    /* Invoked on response from Google sign-in form. */
     const handleAuthCodeResponse = (response) => {
         console.log('authcode response: ', response);
 
@@ -35,11 +36,12 @@ export default function Login(props) {
         }        
     }
 
+    /* Authenticates against Google Identity Service. */
     const getAuthCode = () => {
         if (!scriptLoaded) return;
 
         var client = window.google.accounts.oauth2.initCodeClient({
-            client_id: clientId,
+            client_id: googleClientId,
             scope: 'openid email profile',
             ux_mode: 'popup',
             callback: handleAuthCodeResponse
@@ -54,6 +56,7 @@ export default function Login(props) {
         cbSetUser(null);
     }; 
 
+    /* Retrieve Google Client Id required for Authentication from backend api. */
     useEffect(() => {
         getGoogleClientId()
         .then(clientId => {
@@ -65,8 +68,13 @@ export default function Login(props) {
                 setClientId(clientId);
             }
         });
-    }, [clientId]);
+    }, [googleClientId]);
 
+    /* 
+        Load Google Sign In script (gsi) as per:
+        https://developers.google.com/identity/gsi/web/reference/js-reference
+        https://developers.google.com/identity/oauth2/web/guides/use-code-model 
+    */
     useEffect(() => {
         if (scriptLoaded) return undefined;
 
@@ -91,7 +99,7 @@ export default function Login(props) {
       }, [scriptLoaded]);
 
     let login;
-    if (user == null && clientId != null)
+    if (user == null && googleClientId != null)
         login = 
         <React.Fragment>
             <Button onClick={getAuthCode} 
@@ -99,6 +107,7 @@ export default function Login(props) {
                 color="inherit" 
                 variant="text">Login
             </Button>
+            <Error onErrorClose={handleErrorClose} message={error} />
         </React.Fragment>
     else 
         login = <Button onClick={logout} 
