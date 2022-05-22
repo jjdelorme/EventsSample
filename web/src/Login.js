@@ -7,9 +7,11 @@ import { getGoogleClientId, authenticate } from './eventService';
 export default function Login(props) {
     const logout = () => {console.log('logged out')}
     const [scriptLoaded, setScriptLoaded] = useState(false);
-
-    const clientId = '942258336498-1g4ugps4kl99evv6ut8fmra5p2llt2vq.apps.googleusercontent.com';
-    // const redirectUri = "http://localhost:5000/user/authenticate";
+    const [clientId, setClientId] = useState(null);
+    const [user, setUser] = useState(null);
+    const [error, setError] = useState(null);
+    
+    const cbSetUser = () => { console.log('set user') };
 
     const handleAuthCodeResponse = (response) => {
         console.log('authcode response: ', response);
@@ -45,6 +47,19 @@ export default function Login(props) {
     };
 
     useEffect(() => {
+        getGoogleClientId()
+        .then(clientId => {
+            if (clientId === "") {
+                authenticate("")
+                .then(data => cbSetUser(data));
+            }
+            else {
+                setClientId(clientId);
+            }
+        });
+    }, [clientId]);
+
+    useEffect(() => {
         if (scriptLoaded) return undefined;
 
         const initializeGoogle = () => {
@@ -67,8 +82,6 @@ export default function Login(props) {
         };
       }, [scriptLoaded]);
 
-
-    var user = null;
     let login;
     if (user == null && clientId != null)
         login = 
