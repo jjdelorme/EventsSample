@@ -5,13 +5,16 @@ import Error from './Error';
 import { getGoogleClientId, authenticate } from './eventService';
 
 export default function Login(props) {
-    const logout = () => {console.log('logged out')}
     const [scriptLoaded, setScriptLoaded] = useState(false);
     const [clientId, setClientId] = useState(null);
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
-    
-    const cbSetUser = () => { console.log('set user') };
+    const onSetUser = props.setUser;
+
+    const cbSetUser = useCallback((data) => {
+        setUser(data);
+        onSetUser(data);
+    }, [onSetUser]);
 
     const handleAuthCodeResponse = (response) => {
         console.log('authcode response: ', response);
@@ -45,6 +48,11 @@ export default function Login(props) {
         console.log('getting auth'); 
         client.requestCode();
     };
+
+    const logout = () => {
+        console.log('logged out')  ;
+        cbSetUser(null);
+    }; 
 
     useEffect(() => {
         getGoogleClientId()
