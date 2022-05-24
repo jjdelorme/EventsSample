@@ -64,6 +64,12 @@ namespace EventsSample
                             tokenResponse.IdToken, validationSettings).Result;
 
                     user = await _repository.GetUserAsync(payload.Email);
+
+                    if (user == null)
+                    {
+                        _log.LogError($"Unable to find a user with email {payload?.Email} in repository.");
+                        return Unauthorized();
+                    }
                 }
                 else
                 {
@@ -71,6 +77,7 @@ namespace EventsSample
                     payload = new GoogleJsonWebSignature.Payload();
                 }
 
+                
                 return Ok(new { 
                     AuthToken = _jwtGenerator.CreateUserAuthToken(user),
                     Name = payload.Name,
