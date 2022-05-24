@@ -49,6 +49,11 @@ function App(props) {
     setAlerts(count => count ? count + 1 : 1);
   }, []);
 
+  const cbSetUserExpired = useCallback(() => {
+    setAlerts(0);
+    setUser(null);
+  }, []);
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
         <ThemeProvider theme={mdTheme}>
@@ -86,11 +91,13 @@ function App(props) {
                             <NotificationsIcon />
                         </Badge>
                     </IconButton>
-                    <Login setUser={setUser} />
+                    <Login setUser={setUser} user={user} />
                 </Toolbar>
                 </MuiAppBar>        
                 <AddUser onClose={handleCloseAddUser} open={addUserOpen} user={user} />
-                <Dashboard user={user} setAlerts={cbSetAlerts} />
+                <Dashboard user={user} 
+                  setAlerts={cbSetAlerts} 
+                  onUserExpired={cbSetUserExpired} />
             </Box>
         </ThemeProvider>            
     </LocalizationProvider>

@@ -14,6 +14,7 @@ export default function Dashboard(props) {
   const user = props.user;
   const [eventItems, setEvents] = useState([]);
   const setAlerts = props.setAlerts;
+  const onUserExpired = props.onUserExpired;
 
   const onNewEvent = useCallback((e) => {
     setEvents(events => [...events, e]);
@@ -51,14 +52,16 @@ export default function Dashboard(props) {
       }}
     >
       <Toolbar />
-      <CreateEvent user={user} />
+      <CreateEvent user={user} onUserExpired={onUserExpired} />
       <NewEventNotification onNewEvent={onNewEvent} />
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>
           {/* Recent Events */}
           <Grid item xs={12}>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              <Events user={user} events={eventItems} onDeletedEvent={onDeletedEvent} />
+              <Events user={user} events={eventItems} 
+                  onDeletedEvent={onDeletedEvent}
+                  onUserExpired={onUserExpired} />
             </Paper>
           </Grid>
         </Grid>

@@ -16,5 +16,6 @@ namespace EventsSample
         public string GoogleClientId { get; set; } = "";
         public string GoogleClientSecret { get; set; } = "";
         public string RedirectUri { get; set; } = "";
+        public int ExpiresInMinutes { get; set; } = 60;
     }
 }                    

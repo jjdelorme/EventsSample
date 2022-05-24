@@ -16,6 +16,7 @@ export default function Events(props) {
   const onDeleted = props.onDeletedEvent;
   const user = props.user;
   const loggedIn = user != null;
+  const cbUserExpired = props.onUserExpired;
 
   const deleteEvent = (id) => {
     console.log('deleting event', id);
@@ -31,7 +32,12 @@ export default function Events(props) {
         if (onDeleted != null)
           onDeleted(id);
       } else {
-        setError(`Unable to delete event: ${response.statusText}.`);
+        if (response.status === 401 && loggedIn) {
+          cbUserExpired();
+          setError("User session expired, please login again.");
+        }
+        else 
+          setError(`Unable to delete event: ${response.statusText}.`);
       }
     }).catch((error) => {
       setError(`Unexpected error: ${error}`);

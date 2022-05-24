@@ -6,13 +6,12 @@ import { getGoogleClientId, authenticate } from './eventService';
 export default function Login(props) {
     const [scriptLoaded, setScriptLoaded] = useState(false);
     const [googleClientId, setClientId] = useState(null);
-    const [user, setUser] = useState(null);
+    const onSetUser = props.setUser;    
+    const user = props.user;
     const [error, setError] = useState(null);
     const handleErrorClose = () => setError(null);
-    const onSetUser = props.setUser;
 
     const cbSetUser = useCallback((data) => {
-        setUser(data);
         onSetUser(data);
     }, [onSetUser]);
 

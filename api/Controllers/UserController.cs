@@ -61,10 +61,7 @@ namespace EventsSample
                     validationSettings.Audience = new string[] { _authConfig.GoogleClientId };
 
                     payload = GoogleJsonWebSignature.ValidateAsync(
-                            tokenResponse.IdToken, validationSettings).Result;                
-                    
-                    // save refresh_token
-                    #warning TODO: implement saving refresh token
+                            tokenResponse.IdToken, validationSettings).Result;
 
                     user = await _repository.GetUserAsync(payload.Email);
                 }
