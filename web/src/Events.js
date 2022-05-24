@@ -7,16 +7,18 @@ import TableRow from '@mui/material/TableRow';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Title from './Title';
-import Error from './Error';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+
 import { deleteEventRequest } from './eventService';
 
 export default function Events(props) {
-  const [error, setError] = useState(null);
   const events = props.events;
   const onDeleted = props.onDeletedEvent;
   const user = props.user;
   const loggedIn = user != null;
   const cbUserExpired = props.onUserExpired;
+  const setError = props.setError;
 
   const deleteEvent = (id) => {
     console.log('deleting event', id);
@@ -44,40 +46,42 @@ export default function Events(props) {
     });
   }
 
-  const handleErrorClose = () => {
-    setError(null);
-  }
-
   return (
-    <React.Fragment>
-      <Error message={error} onErrorClose={handleErrorClose} />
-      <Title>Recent Events</Title>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Event Type</TableCell>
-            <TableCell>Product</TableCell>
-            <TableCell>Description</TableCell>
-            <TableCell></TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {events.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>{row.date}</TableCell>
-              <TableCell>{row.type}</TableCell>
-              <TableCell>{row.product}</TableCell>
-              <TableCell>{row.description}</TableCell>
-              <TableCell>
-              <IconButton disabled={!loggedIn} onClick={() => deleteEvent(row.id)} aria-label="delete">
-                <DeleteIcon />
-              </IconButton>                
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </React.Fragment>
+    <Grid container spacing={3}>
+    {/* Recent Events */}
+    <Grid item xs={12}>
+      <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+        <React.Fragment>
+          <Title>Recent Events</Title>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Date</TableCell>
+                <TableCell>Event Type</TableCell>
+                <TableCell>Product</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {events.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell>{row.date}</TableCell>
+                  <TableCell>{row.type}</TableCell>
+                  <TableCell>{row.product}</TableCell>
+                  <TableCell>{row.description}</TableCell>
+                  <TableCell>
+                  <IconButton disabled={!loggedIn} onClick={() => deleteEvent(row.id)} aria-label="delete">
+                    <DeleteIcon />
+                  </IconButton>                
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </React.Fragment>
+        </Paper>
+      </Grid>
+    </Grid>    
   );
 }

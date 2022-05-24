@@ -2,17 +2,17 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Events from './Events';
 import CreateEvent from './CreateEvent';
 import NewEventNotification from './NewEventNotification';
 import Version from './Version';
 import { loadEvents } from './eventService';
+import Error from './Error';
 
 export default function Dashboard(props) {
   const user = props.user;
   const [eventItems, setEvents] = useState([]);
+  const [error, setError] = useState(null);
   const setAlerts = props.setAlerts;
   const onUserExpired = props.onUserExpired;
 
@@ -27,6 +27,10 @@ export default function Dashboard(props) {
       return newEvents;
     });
   };
+
+  const handleErrorClose = () => {
+    setError(null);
+  }
 
   useEffect(() => {
     loadEvents()
@@ -52,19 +56,14 @@ export default function Dashboard(props) {
       }}
     >
       <Toolbar />
-      <CreateEvent user={user} onUserExpired={onUserExpired} />
+      <Error message={error} onErrorClose={handleErrorClose} />
+      <CreateEvent user={user} onUserExpired={onUserExpired} setError={setError} />
       <NewEventNotification onNewEvent={onNewEvent} />
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Grid container spacing={3}>
-          {/* Recent Events */}
-          <Grid item xs={12}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              <Events user={user} events={eventItems} 
+        <Events user={user} events={eventItems} 
                   onDeletedEvent={onDeletedEvent}
-                  onUserExpired={onUserExpired} />
-            </Paper>
-          </Grid>
-        </Grid>
+                  onUserExpired={onUserExpired}
+                  setError={setError} />
         <Version sx={{ pt: 4 }} />
       </Container>
     </Box>

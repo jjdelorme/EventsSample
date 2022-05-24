@@ -8,21 +8,17 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import DatePicker from '@mui/lab/DatePicker';
-import Error from './Error';
 import { createEventRequest } from './eventService';
 
 export default function CreateEvent(props) {
   const [eventDate, setEventDate] = React.useState(new Date());
-  const [error, setError] = useState(null);
+  const setError = props.setError;
   const user = props.user;
+  const cbUserExpired = props.onUserExpired;
 
   // Only authenticated users
   if (!user)
     return null;
-
-  const handleErrorClose = () => {
-    setError(null);
-  }
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -31,7 +27,14 @@ export default function CreateEvent(props) {
     createEventRequest(user, data)
     .then((response) => {
       if (!response.ok)
-        setError(`Unable to create event ${response.statusText}`);
+      {
+        if (response.status === 401 && user != null) {
+          cbUserExpired();
+          setError("User session expired, please login again.");
+        }
+        else
+          setError(`Unable to create event ${response.statusText}`);
+      }  
     })
     .catch((err) => {
       setError(`Unexpected error ${err}`);
@@ -40,7 +43,6 @@ export default function CreateEvent(props) {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Error message={error} onErrorClose={handleErrorClose} />
       <Box
         sx={{
           marginTop: 8,
