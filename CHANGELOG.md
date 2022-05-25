@@ -2,6 +2,7 @@
 
 ## [1.7.0]
 ### Server
+- Move to .NET 7 Preview 3
 - Use new gRPC library which allows using Alpine container
 - Configurable login expiration
 - Changed to authcode method with exchange for access token authentication
