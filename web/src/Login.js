@@ -1,22 +1,61 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Button from '@mui/material/Button';
-import { Avatar } from '@mui/material';
-import GoogleOneTapLogin from 'react-google-one-tap-login';
 import Error from './Error';
 import { getGoogleClientId, authenticate } from './eventService';
 
 export default function Login(props) {
-    const [clientId, setClientId] = useState(null);
-    const [user, setUser] = useState(null);
+    const [scriptLoaded, setScriptLoaded] = useState(false);
+    const [googleClientId, setClientId] = useState(null);
+    const onSetUser = props.setUser;    
+    const user = props.user;
     const [error, setError] = useState(null);
     const handleErrorClose = () => setError(null);
-    const onSetUser = props.setUser;
 
     const cbSetUser = useCallback((data) => {
-        setUser(data);
         onSetUser(data);
     }, [onSetUser]);
-    
+
+    /* Invoked on response from Google sign-in form. */
+    const handleAuthCodeResponse = (response) => {
+        console.log('authcode response: ', response);
+
+        if (response) {
+            const authCode = response.code;
+            console.log('code', authCode);
+
+            authenticate(authCode).then(data => {
+                if (data != null)
+                    console.log('auth', data);
+                    cbSetUser(data);
+            })
+            .catch((err) => {
+                console.log("Login error: ", err);
+                setError("Server error, unable to login.");
+            });
+        }        
+    }
+
+    /* Authenticates against Google Identity Service. */
+    const getAuthCode = () => {
+        if (!scriptLoaded) return;
+
+        var client = window.google.accounts.oauth2.initCodeClient({
+            client_id: googleClientId,
+            scope: 'openid email profile',
+            ux_mode: 'popup',
+            callback: handleAuthCodeResponse
+        });
+
+        console.log('getting auth'); 
+        client.requestCode();
+    };
+
+    const logout = () => {
+        console.log('logged out')  ;
+        cbSetUser(null);
+    }; 
+
+    /* Retrieve Google Client Id required for Authentication from backend api. */
     useEffect(() => {
         getGoogleClientId()
         .then(clientId => {
@@ -28,57 +67,46 @@ export default function Login(props) {
                 setClientId(clientId);
             }
         });
-    }, [cbSetUser]);
+    }, [googleClientId]);
 
-    // Don't show login if we don't have a client id.
-    if (clientId == null) {
-        return null;
-    }
+    /* 
+        Load Google Sign In script (gsi) as per:
+        https://developers.google.com/identity/gsi/web/reference/js-reference
+        https://developers.google.com/identity/oauth2/web/guides/use-code-model 
+    */
+    useEffect(() => {
+        if (scriptLoaded) return undefined;
 
-    const responseGoogle = (response) => {
-        console.log('login response', response);
+        const initializeGoogle = () => {
+            console.log('initializing...');
+          if (!window.google || scriptLoaded) return;
+      
+          setScriptLoaded(true);
+        };
 
-        if (response) {
-            const token = response.id_token;
-            console.log('token', token);
-
-            authenticate(token).then(data => {
-                if (data != null)
-                    console.log('auth', data);
-                    cbSetUser(data);
-            })
-            .catch((err) => {
-                console.log("Login error: ", err);
-                setError("Server error, unable to login.");
-            });
-        }
-    }
-
-    const logout = () => {
-        console.log('logged out')  ;
-        cbSetUser(null);
-    };    
-    
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.onload = initializeGoogle;
+        script.async = true;
+        script.id = "google-client-script";
+        document.querySelector("body")?.appendChild(script);
+      
+        return () => {
+          window.google?.accounts.id.cancel();
+          document.getElementById("google-client-script")?.remove();
+        };
+      }, [scriptLoaded]);
 
     let login;
-    if (user == null && clientId != null)
+    if (user == null && googleClientId != null)
         login = 
         <React.Fragment>
-          <GoogleOneTapLogin 
-            onError={responseGoogle} 
-            onSuccess={responseGoogle} 
-            googleAccountConfigs={
-                { client_id: clientId, cancel_on_tap_outside: false }
-            }
-            render={renderProps => (
-                <Button onClick={renderProps.onClick} 
-                    disabled={renderProps.disabled}
-                    color="inherit" 
-                    variant="text">Login
-                </Button>
-            )}                 
-          />
-          <Error onErrorClose={handleErrorClose} message={error} />
+            <Button onClick={getAuthCode} 
+                disabled={false}
+                color="inherit" 
+                variant="text">Login
+            </Button>
+            <Error onErrorClose={handleErrorClose} message={error} />
         </React.Fragment>
     else 
         login = <Button onClick={logout} 

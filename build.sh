@@ -30,19 +30,28 @@ fi
 
 IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/eventssample/eventssample:$SUFFIX"
 
-docker build --build-arg COMMIT_SHA=${SUFFIX} -t $IMAGE .
+docker build \
+  --rm \
+  --build-arg COMMIT_SHA=${SUFFIX} \
+  -t $IMAGE \
+  .
 
 # Only build if local dev specified.
 if [ "$LOCAL" = "local" ]; then
   exit
 fi
 
-docker push $IMAGE
+# Send to Cloud Build to Build & Deploy
+SHORT_SHA=$(git rev-parse --short HEAD)
+gcloud builds submit --substitutions=SHORT_SHA=$SHORT_SHA
 
-gcloud run deploy \
-        --image $IMAGE \
-        --tag test \
-        --no-traffic \
-        eventssample
+# Alternatively, to manually deploy to Cloud Run:
+# docker push $IMAGE
+
+# gcloud run deploy \
+#         --image $IMAGE \
+#         --tag test \
+#         --no-traffic \
+#         eventssample
 # #To restore sending traffic to new builds: 
 # gcloud run services update-traffic --to-latest eventssample

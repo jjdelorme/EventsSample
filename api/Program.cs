@@ -14,7 +14,8 @@ if (builder.Environment.IsProduction())
 builder.Services.AddSignalR();
 builder.Services.AddHostedService<SubscriberService>();
 builder.Services.AddSingleton<PublisherService>();
-builder.Services.AddSingleton<IRepository, FirestoreRepository>();
+builder.Services.AddScoped<IRepository, FirestoreRepository>();
+builder.Services.AddHttpClient();
 
 // Controllers
 builder.Services.AddControllers();
@@ -22,7 +23,19 @@ builder.Services.AddControllers();
 // AuthN/AuthZ
 builder.Services.AddGoogleLoginJwt();
 
+#if DEBUG
+builder.Services.AddCors(o => o.AddDefaultPolicy(builder => {
+    builder.AllowAnyMethod();
+    builder.AllowAnyHeader();
+    builder.AllowAnyOrigin();
+}));
+#endif
+
 var app = builder.Build();
+
+#if DEBUG
+app.UseCors();
+#endif
 
 app.MapControllers();
 app.UseRouting();
@@ -30,6 +43,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
 // signalR endpoint
 app.MapHub<NotifyHub>("/notifyhub");
 

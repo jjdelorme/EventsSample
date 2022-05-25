@@ -29,22 +29,17 @@ export async function getVersion() {
   }
 }
 
-function authenticateRequest(token) {
-  const authUrl = '/user/authenticate';
+function authenticateRequest(authCode) {
+  const authUrl = '/user/authenticate?code=' + authCode;
   const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(
-      { 
-          idToken: token
-      })
+      method: 'GET'
   };
   
   return fetch(authUrl, requestOptions);
 }
 
-export async function authenticate(token) {
-  const response = await authenticateRequest(token);
+export async function authenticate(authCode) {
+  const response = await authenticateRequest(authCode);
   if (response.ok) {
       return await response.json();
   } else {

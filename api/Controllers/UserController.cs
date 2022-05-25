@@ -3,39 +3,38 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using Google.Apis.Auth;
 using EventsSample.Authentication;
+using Microsoft.Net.Http.Headers;
+using System.Text.Json;
 
 namespace EventsSample
 {
     [Route("[controller]")]
     public class UserController : Controller
     {
-        public class AuthenticateRequest
-        {
-            [Required]
-            public string IdToken { get; set; } = "";
-        }
-
         private readonly JwtGenerator _jwtGenerator;
         private readonly IRepository _repository;
         private readonly ILogger<UserController> _log;
-        private readonly AuthenticationSettings _config;
+        private readonly AuthenticationSettings _authConfig;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         public UserController(ILogger<UserController> log, 
-                IConfiguration config, IRepository repository)
+                IConfiguration config, IRepository repository,
+                IHttpClientFactory httpClientFactory)
         {
-            _config = config.GetSection(AuthenticationSettings.Section)
+            _authConfig = config.GetSection(AuthenticationSettings.Section)
                 .Get<AuthenticationSettings>();
 
             _log = log;
             _repository = repository;
-            _jwtGenerator = new JwtGenerator(_config);
+            _jwtGenerator = new JwtGenerator(_authConfig);
+            _httpClientFactory = httpClientFactory;
         }
 
         [AllowAnonymous]
         [HttpGet("/user/clientid")]
         public string GoogleClientId()
         {
-            return _config.Enabled ? _config.GoogleClientId : "";
+            return _authConfig.Enabled ? _authConfig.GoogleClientId : "";
         }
 
         [AllowAnonymous]
@@ -46,40 +45,53 @@ namespace EventsSample
         }
 
         [AllowAnonymous]
-        [HttpPost("authenticate")]
-        public async Task<IActionResult> Authenticate([FromBody] AuthenticateRequest data)
+        [HttpGet("authenticate")]
+        public async Task<IActionResult> AuthCode([FromQuery] GoogleCodeResponse codeResponse)
         {
             User user = null;
             GoogleJsonWebSignature.Payload payload = null;
 
-            var settings = new GoogleJsonWebSignature.ValidationSettings();
-            settings.Audience = new string[] { _config.GoogleClientId };
-            
-            if (_config.Enabled)
+            try
             {
-                payload = GoogleJsonWebSignature.ValidateAsync(
-                    data.IdToken, settings).Result;                
+                if (_authConfig.Enabled)
+                {
+                    var tokenResponse = await ExchangeCodeForTokensAsync(codeResponse.code);
 
-                user = await _repository.GetUserAsync(payload.Email);
+                    var validationSettings = new GoogleJsonWebSignature.ValidationSettings();
+                    validationSettings.Audience = new string[] { _authConfig.GoogleClientId };
+
+                    payload = GoogleJsonWebSignature.ValidateAsync(
+                            tokenResponse.IdToken, validationSettings).Result;
+
+                    user = await _repository.GetUserAsync(payload.Email);
+
+                    if (user == null)
+                    {
+                        _log.LogError($"Unable to find a user with email {payload?.Email} in repository.");
+                        return Unauthorized();
+                    }
+                }
+                else
+                {
+                    user = new User { Email = "noemail@noemail.com", IsAdmin = true };
+                    payload = new GoogleJsonWebSignature.Payload();
+                }
+
+                
+                return Ok(new { 
+                    AuthToken = _jwtGenerator.CreateUserAuthToken(user),
+                    Name = payload.Name,
+                    Picture = payload.Picture,
+                    IsAdmin = user.IsAdmin 
+                });
             }
-            else
+            catch (Exception e)
             {
-                user = new User { Email = "noemail@noemail.com", IsAdmin = true };
-                payload = new GoogleJsonWebSignature.Payload();
+                string error = $"Unable to exchange auth code for token"; 
+                _log.LogError(error, e);
+                
+                return StatusCode(StatusCodes.Status500InternalServerError, error);
             }
-
-            if (user == null)
-            {
-                _log.LogError($"Unable to find a user with email {payload.Email} in repository.");
-                return Unauthorized();
-            }
-
-            return Ok(new { 
-                AuthToken = _jwtGenerator.CreateUserAuthToken(user),
-                Name = payload.Name,
-                Picture = payload.Picture,
-                IsAdmin = user.IsAdmin 
-            });
         }
 
         [Authorize(Roles = AuthenticationSettings.AdminRole)]
@@ -98,6 +110,40 @@ namespace EventsSample
                 
                 return StatusCode(StatusCodes.Status500InternalServerError, error);
             }
+        }
+
+        private async Task<GoogleTokenResponse> ExchangeCodeForTokensAsync(string authCode)
+        {
+            const string tokenUrl = "https://oauth2.googleapis.com/token";
+            GoogleTokenResponse tokenResponse = null;
+
+            var formContent = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("code", authCode),
+                new KeyValuePair<string, string>("client_id", _authConfig.GoogleClientId),
+                new KeyValuePair<string, string>("client_secret", _authConfig.GoogleClientSecret),
+                new KeyValuePair<string, string>("redirect_uri", _authConfig.RedirectUri),
+                new KeyValuePair<string, string>("grant_type", "authorization_code")
+            });
+
+            var httpClient = _httpClientFactory.CreateClient();
+            var httpResponseMessage = await httpClient.PostAsync(tokenUrl, formContent);
+
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                using var contentStream =
+                    await httpResponseMessage.Content.ReadAsStreamAsync();
+                
+                tokenResponse = await JsonSerializer.DeserializeAsync<GoogleTokenResponse>(
+                    contentStream);
+            }
+            else
+            {
+                var error = await httpResponseMessage.Content.ReadAsStringAsync();
+                _log.LogError($"Unable to exchange code for token: {error}");
+            }
+
+            return tokenResponse;
         }
     }
 }

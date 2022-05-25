@@ -10,6 +10,7 @@ namespace EventsSample.Authentication
         private readonly RsaSecurityKey _key;
         private readonly string _audience;
         private readonly string _issuer;
+        private readonly int _expiresInMinutes;
 
         public JwtGenerator(AuthenticationSettings options)
         {
@@ -19,6 +20,8 @@ namespace EventsSample.Authentication
            
             _key = new RsaSecurityKey(
                 GetPrivateKey(options.PrivateKeyPemFile));
+
+            _expiresInMinutes = options.ExpiresInMinutes;
         }
 
         public string CreateUserAuthToken(User user)
@@ -29,7 +32,7 @@ namespace EventsSample.Authentication
                 Audience = _audience,
                 Issuer = _issuer,
                 Subject = GetClaims(user),
-                Expires = DateTime.UtcNow.AddMinutes(60),
+                Expires = DateTime.UtcNow.AddMinutes(_expiresInMinutes),
                 SigningCredentials = new SigningCredentials(_key, SecurityAlgorithms.RsaSha256)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

@@ -1,11 +1,11 @@
 # Build the API
 FROM mcr.microsoft.com/dotnet/nightly/sdk AS api-build
-ARG COMMIT_SHA=0
-ENV SUFFIX=$COMMIT_SHA
+ARG COMMIT_SHA
+ENV COMMIT_SHA=${COMMIT_SHA:-v1.0.0}
 WORKDIR /src
 COPY /api .
 RUN dotnet publish \
-    --version-suffix $SUFFIX \
+    --version-suffix $COMMIT_SHA \
     -r linux-musl-x64 --self-contained true -p:PublishSingleFile=true \
     -c Release -o /publish
 
