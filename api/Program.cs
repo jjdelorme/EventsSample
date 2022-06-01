@@ -1,6 +1,7 @@
 using EventsSample;
 using EventsSample.Authentication;
 using Google.Cloud.Logging.Console;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,13 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(builder => {
 }));
 #endif
 
+builder.Services.AddSwaggerGen(o => 
+{
+    o.CustomOperationIds(e => e.TryGetMethodInfo(out System.Reflection.MethodInfo info) ? 
+        $"{e.ActionDescriptor.RouteValues["controller"]}_{info.Name}" : 
+        $"{e.ActionDescriptor.RouteValues["controller"]}_{e.HttpMethod}");
+});
+
 var app = builder.Build();
 
 #if DEBUG
@@ -43,6 +51,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // signalR endpoint
 app.MapHub<NotifyHub>("/notifyhub");
