@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 if (builder.Environment.IsProduction()) 
 {
     await GoogleMetadata.SetConfigAsync(builder.Configuration);
-    builder.Logging.AddGoogleFormatLogger();
+    builder.Logging.AddGoogleCloudConsole();
 }
 
 // Services
