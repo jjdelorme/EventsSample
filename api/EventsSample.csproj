@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <VersionPrefix>1.7.0</VersionPrefix>
+    <VersionPrefix>1.7.2</VersionPrefix>
     <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
     <PublishTrimmed>true</PublishTrimmed>
     <PublishSingleFile>true</PublishSingleFile>
@@ -14,11 +14,13 @@
     <!-- Moving to newer gRPC as per issue: https://github.com/googleapis/google-cloud-dotnet/issues/7560 -->
     <PackageReference Include="Google.Api.Gax.Grpc.GrpcNetClient" Version="3.7.0" />
     <PackageReference Include="Google.Cloud.Firestore" Version="2.4.0" />
+    <PackageReference Include="Google.Cloud.Logging.Console" Version="1.0.0-beta01" />
     <PackageReference Include="Google.Cloud.PubSub.V1" Version="2.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.13.1" />    
     <PackageReference Include="Google.Apis.Auth" Version="1.55.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.12" />    
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.12" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />    
   </ItemGroup>
 
 </Project>

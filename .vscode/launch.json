@@ -30,7 +30,7 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/key.json"
+                "GOOGLE_APPLICATION_CREDENTIALS": "${workspaceFolder}/api/keys/key.json"
             }
         },
         {
