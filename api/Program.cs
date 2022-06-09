@@ -1,7 +1,6 @@
 using EventsSample;
 using EventsSample.Authentication;
 using Google.Cloud.Logging.Console;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +23,9 @@ builder.Services.AddControllers();
 // AuthN/AuthZ
 builder.Services.AddGoogleLoginJwt();
 
+// Swagger/OpenAPI
+builder.Services.AddSwaggerGen(GoogleMetadata.AddOperationId);
+
 #if DEBUG
 builder.Services.AddCors(o => o.AddDefaultPolicy(builder => {
     builder.AllowAnyMethod();
@@ -31,13 +33,6 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(builder => {
     builder.AllowAnyOrigin();
 }));
 #endif
-
-builder.Services.AddSwaggerGen(o => 
-{
-    o.CustomOperationIds(e => e.TryGetMethodInfo(out System.Reflection.MethodInfo info) ? 
-        $"{e.ActionDescriptor.RouteValues["controller"]}_{info.Name}" : 
-        $"{e.ActionDescriptor.RouteValues["controller"]}_{e.HttpMethod}");
-});
 
 var app = builder.Build();
 
@@ -52,7 +47,7 @@ app.UseAuthorization();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.UseSwagger();
+app.UseSwagger(GoogleMetadata.ConfigureSwagger);
 app.UseSwaggerUI();
 
 // signalR endpoint
