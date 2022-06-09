@@ -1,4 +1,8 @@
 using Google.Api.Gax;
+using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.OpenApi.Interfaces;
+using Microsoft.OpenApi.Any;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace EventsSample
 {   
@@ -42,6 +46,32 @@ namespace EventsSample
                 config["ProjectId"] = platform.ProjectId;
                 config["InstanceId"] = await GetComputeInstanceIdAsync();
             }
+        }
+
+        public static void ConfigureSwagger(SwaggerOptions options)
+        {
+            options.SerializeAsV2 = true;
+            options.PreSerializeFilters.Add((doc, http) => 
+            {
+                doc.Extensions = new Dictionary<string, IOpenApiExtension>
+                {
+                    {
+                        "x-google-backend", new OpenApiObject
+                        {
+                            {"address", new OpenApiString($"https://{http.Host.Value}")},
+                            {"protocol", new OpenApiString("h2")}
+                        }
+                    }
+                }; 
+            });
+        }
+
+        public static void AddOperationId(SwaggerGenOptions options)
+        {
+            options.CustomOperationIds(e => 
+                e.TryGetMethodInfo(out System.Reflection.MethodInfo info) ? 
+                    $"{e.ActionDescriptor.RouteValues["controller"]}_{info.Name}" : 
+                    $"{e.ActionDescriptor.RouteValues["controller"]}_{e.HttpMethod}");
         }
     }
 }
