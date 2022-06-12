@@ -51,7 +51,8 @@ docker push $IMAGE
 gcloud run deploy \
         --image $IMAGE \
         --tag test \
-#        --no-traffic \
         eventssample
+#        --no-traffic \
+
 # #To restore sending traffic to new builds: 
 # gcloud run services update-traffic --to-latest eventssample
