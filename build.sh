@@ -42,16 +42,16 @@ if [ "$LOCAL" = "local" ]; then
 fi
 
 # Send to Cloud Build to Build & Deploy
-SHORT_SHA=$(git rev-parse --short HEAD)
-gcloud builds submit --substitutions=SHORT_SHA=$SHORT_SHA
+#SHORT_SHA=$(git rev-parse --short HEAD)
+# gcloud builds submit --substitutions=SHORT_SHA=$SHORT_SHA
 
 # Alternatively, to manually deploy to Cloud Run:
-# docker push $IMAGE
+docker push $IMAGE
 
-# gcloud run deploy \
-#         --image $IMAGE \
-#         --tag test \
-#         --no-traffic \
-#         eventssample
+gcloud run deploy \
+        --image $IMAGE \
+        --tag test \
+#        --no-traffic \
+        eventssample
 # #To restore sending traffic to new builds: 
 # gcloud run services update-traffic --to-latest eventssample

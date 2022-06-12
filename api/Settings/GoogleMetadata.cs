@@ -15,8 +15,10 @@ namespace EventsSample
         
             if (platform?.Type == PlatformType.CloudRun)
             {
+                var gceDetails = GcePlatformDetails.TryLoad(platform.CloudRunDetails.MetadataJson);
+
                 config["ProjectId"] = platform.ProjectId;
-                config["InstanceId"] = GetShortInstanceId(platform.GceDetails.InstanceId);
+                config["InstanceId"] = GetShortInstanceId(gceDetails?.InstanceId);
                 config["ServiceRevision"] = 
                     $"{platform.CloudRunDetails.ServiceName}-{platform.CloudRunDetails.RevisionName}";
             }
