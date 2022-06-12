@@ -24,7 +24,8 @@ builder.Services.AddControllers();
 builder.Services.AddGoogleLoginJwt();
 
 // Swagger/OpenAPI
-builder.Services.AddSwaggerGen(GoogleMetadata.AddOperationId);
+builder.Services.AddSwaggerGen(options => 
+    options.CustomOperationIds(api => GoogleMetadata.GetOperationId(api)));
 
 #if DEBUG
 builder.Services.AddCors(o => o.AddDefaultPolicy(builder => {

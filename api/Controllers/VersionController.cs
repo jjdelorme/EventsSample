@@ -9,7 +9,8 @@ namespace EventsSample
     (
         string ProjectId,
         string Version,
-        string ComputeInstanceId
+        string ComputeInstanceId,
+        string ServiceRevision
     );
 
     [Route("[controller]")]
@@ -22,8 +23,9 @@ namespace EventsSample
             _version = new VerisonInfo
             (
                 ProjectId: config["ProjectId"],
-                ComputeInstanceId: GetShortInstanceId(config["InstanceId"]),
-                Version: GetVersion()
+                ComputeInstanceId: config["InstanceId"],
+                Version: GetVersion(),
+                ServiceRevision: config["ServiceRevision"]
             );
         }
 
@@ -47,13 +49,5 @@ namespace EventsSample
                 return "";
             }
         }
-        
-        private string GetShortInstanceId(string instanceId)
-        {
-            if (string.IsNullOrWhiteSpace(instanceId))
-                return "";
-                
-            return String.Format("{0:X}", instanceId.GetHashCode());
-        }        
     }
 }
