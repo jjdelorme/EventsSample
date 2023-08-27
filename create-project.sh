@@ -26,3 +26,6 @@ fi
 gcloud projects create $PROJECT_ID
 gcloud alpha billing accounts projects link $PROJECT_ID --billing-account=$ACCOUNT_ID
 gcloud config set project $PROJECT_ID
+
+# Create a default network
+gcloud compute networks create default-network
