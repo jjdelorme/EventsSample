@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import DatePicker from '@mui/lab/DatePicker';
+import { DatePicker } from '@mui/x-date-pickers';
 import { createEventRequest } from './eventService';
 
 export default function CreateEvent(props) {
@@ -22,8 +22,13 @@ export default function CreateEvent(props) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-
+    const data = {
+      eventDate: eventDate,
+      eventType: event.currentTarget.eventType.value,
+      product: event.currentTarget.product.value,
+      description: event.currentTarget.description.value
+    };
+        
     createEventRequest(user, data)
     .then((response) => {
       if (!response.ok)
@@ -69,7 +74,7 @@ export default function CreateEvent(props) {
                 onChange={(newValue) => {
                   setEventDate(newValue);
                 }}
-                renderInput={(params) => 
+                textField={(params) => 
                   <TextField {...params} id="eventDate" name="eventDate" />}
               />
             </Grid>

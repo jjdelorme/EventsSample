@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import Dashboard from './Dashboard';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';

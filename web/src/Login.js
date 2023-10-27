@@ -89,11 +89,16 @@ export default function Login(props) {
         script.onload = initializeGoogle;
         script.async = true;
         script.id = "google-client-script";
-        document.querySelector("body")?.appendChild(script);
+        const body = document.querySelector("body");
+        if (body)
+            body.appendChild(script);
       
         return () => {
-          window.google?.accounts.id.cancel();
-          document.getElementById("google-client-script")?.remove();
+          if (window.google) {
+            window.google.accounts.id.cancel();
+            const gScript = document.getElementById("google-client-script");
+            if (gScript) gScript.remove();
+          }
         };
       }, [scriptLoaded]);
 

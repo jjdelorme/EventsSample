@@ -61,10 +61,10 @@ export function createEventRequest(user, data) {
     body: JSON.stringify(
       { 
         id: uuid(),
-        type: data.get('eventType'),
-        date: data.get('eventDate'),
-        product: data.get('product'),
-        description: data.get('description')
+        type: data.eventType,
+        date: data.eventDate,
+        product: data.product,
+        description: data.description
       })
   };
   
