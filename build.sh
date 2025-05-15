@@ -15,6 +15,8 @@ LOCAL=$1
 PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 REGION=$(gcloud config list --format 'value(run.region)')
 SUFFIX=$(git rev-parse --short HEAD)
+SA_NAME=eventssample-sa
+SERVICE_ACCOUNT="$SA_NAME@$PROJECT_ID.iam.gserviceaccount.com"
 
 if [ -z $PROJECT_ID ]
 then
@@ -51,6 +53,8 @@ docker push $IMAGE
 gcloud run deploy \
         --image $IMAGE \
         --tag test \
+        --service-account $SERVICE_ACCOUNT \
+        --set-secrets=/app/keys/public/public-key.pem=JwtPublicKey:latest,/app/keys/private/private-key.pem=JwtPrivateKey:latest \
         eventssample
 #        --no-traffic \
 

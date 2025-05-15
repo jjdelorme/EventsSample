@@ -42,6 +42,8 @@ namespace EventsSample
         /// </summary>
         public async Task PublishAsync(Event item)
         {
+            item.PublishedTime = DateTime.UtcNow;
+
             string data = JsonSerializer.Serialize<Event>(item,
                 new JsonSerializerOptions
                     { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });

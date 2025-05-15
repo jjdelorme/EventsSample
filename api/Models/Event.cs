@@ -9,7 +9,8 @@ namespace EventsSample
         public string Date { get; set; }
 
         public string Product { get; set; }
-        
+
         public string Description { get; set; }
+        public DateTime PublishedTime { get; set; }
     }
 }

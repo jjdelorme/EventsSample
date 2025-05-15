@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <VersionPrefix>1.7.4</VersionPrefix>
-    <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
-    <PublishTrimmed>true</PublishTrimmed>
-    <PublishSingleFile>true</PublishSingleFile>
+    <PublishReadyToRunComposite>false</PublishReadyToRunComposite>
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishSingleFile>false</PublishSingleFile>
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 

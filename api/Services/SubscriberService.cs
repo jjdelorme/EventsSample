@@ -236,7 +236,7 @@ namespace EventsSample
         private async Task<SubscriberClient.Reply> ProcessMessageAsync(
             PubsubMessage message, 
             CancellationToken cancel)
-        {
+        {           
             SubscriberClient.Reply reply = SubscriberClient.Reply.Nack;
 
             if (cancel.IsCancellationRequested)
@@ -245,7 +245,17 @@ namespace EventsSample
             }
 
             try
-            {               
+            {
+                DateTime recievedTime = DateTime.UtcNow;
+                var value = System.Text.Json.JsonSerializer.Deserialize<Event>(message.Data.ToByteArray());
+                
+                if (value != null)
+                {
+                    // Calculate the difference between published time and recieved time
+                    TimeSpan diff = recievedTime.Subtract(value.PublishedTime);
+                    _log.LogInformation($" [Latency: {diff.Milliseconds} ms]");
+                }
+
                 string json = Text.Encoding.UTF8.GetString(message.Data.ToArray());
                 
                 _log.LogInformation($"Received message id:{message.MessageId}, " +

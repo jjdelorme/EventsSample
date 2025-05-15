@@ -25,7 +25,7 @@ namespace EventsSample
             return await _repository.GetEventsAsync();
         }
 
-        [Authorize]
+        // [Authorize]
         [HttpPost]
         public async Task CreateAsync([FromBody]Event eventItem)
         {

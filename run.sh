@@ -6,6 +6,8 @@
 ###############################################################################
 set -e
 
+cp $GOOGLE_APPLICATION_CREDENTIALS $PWD/api/keys/key.json
+
 PROJECT_ID=$(gcloud config list --format 'value(core.project)')
 REGION=$(gcloud config list --format 'value(run.region)')
 SUFFIX=$(git rev-parse --short HEAD)
